@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "458440667687",
+    "firebase_url": "https://sdpapp-6f9bf.firebaseio.com",
+    "project_id": "sdpapp-6f9bf",
+    "storage_bucket": "sdpapp-6f9bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:458440667687:android:565c79aac400c5b1",
+        "android_client_info": {
+          "package_name": "com.e.sdp.sdpapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "458440667687-t73ljd1f35klac9h11a7bhjd20bpfqlg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXoSObiGgN3bFyU2MnHHxvEqZfCsL2AC8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
