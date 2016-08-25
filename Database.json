@@ -1,0 +1,68 @@
+{
+	"Courses" : {
+		"C123456" : {
+			"CourseName" : "Science In Information Technology"
+		},
+		"C123445" : {
+			"CourseName" : "Science In Business Technology"
+		}
+	},
+
+	"Faculties" : {
+		"F9087" : {
+			"FacultyName": "Faculty of Engineering and Information Technology"
+		}
+	},
+
+	"Students" : {
+		"S00001" : {
+			"Name" : "Ben",
+			"CourseID" : "C123456",
+			"FacultyID" : "F9876543"
+		},
+
+		"S00002" : {
+			"Name" : "Lem",
+			"CourseID" : "C123445",
+			"FacultyID" : "F9876543"
+		}
+	},
+
+	"Bookings" : {
+		"B000002" : {
+			"SessionID" : "SE320001",
+			"StudentID" : "S00001",
+			"Attended" : false
+		}
+	},
+
+	"Waitings" : {
+		"W00001" : {
+			"SessionID" : "SE320001",
+			"StudentID" : "S00002"
+		}
+	},
+
+	"Session" : {
+		"SE320001" : {
+			"SessionTypeID" : "ST1",
+			"CourseID" : null,
+			"FacultyID" : "F9087",
+			"SessionTime" : "9.00am",
+			"SessionLocation" : "11.0.404"
+		}
+	},
+
+	"SessionType" : {
+		"ST0" : {
+			"SessionType" : "Session"
+		},
+		"ST1" : {
+			"SessionType" : "Workshop"
+		},
+		"ST2" : {
+			"SessionType" : "Program"
+		}
+	}
+
+}
