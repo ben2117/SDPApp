@@ -1,67 +1,71 @@
 {
-	"Courses" : {
+	"courses" : {
 		"C123456" : {
-			"CourseName" : "Science In Information Technology"
+			"courseName" : "Science In Information Technology"
 		},
 		"C123445" : {
-			"CourseName" : "Science In Business Technology"
+			"courseName" : "Science In Business Technology"
 		}
 	},
 
-	"Faculties" : {
+	"faculties" : {
 		"F9087" : {
-			"FacultyName": "Faculty of Engineering and Information Technology"
+			"facultyName": "Faculty of Engineering and Information Technology"
 		}
 	},
 
-	"Students" : {
+	"students" : {
 		"S00001" : {
-			"Name" : "Ben",
-			"CourseID" : "C123456",
-			"FacultyID" : "F9876543"
+			"name" : "Ben",
+			"courseID" : "C123456",
+			"facultyID" : "F9876543"
 		},
 
 		"S00002" : {
-			"Name" : "Lem",
-			"CourseID" : "C123445",
-			"FacultyID" : "F9876543"
+			"name" : "Lem",
+			"courseID" : "C123445",
+			"facultyID" : "F9876543"
 		}
 	},
 
-	"Bookings" : {
+	"bookings" : {
 		"B000002" : {
-			"SessionID" : "SE320001",
-			"StudentID" : "S00001",
-			"Attended" : false
+			"sessionID" : "SE320001",
+			"studentID" : "S00001",
+			"attended" : false
 		}
 	},
 
-	"Waitings" : {
+	"waitings" : {
 		"W00001" : {
-			"SessionID" : "SE320001",
-			"StudentID" : "S00002"
+			"sessionID" : "SE320001",
+			"studentID" : "S00002"
 		}
 	},
 
-	"Session" : {
+	"sessions" : {
 		"SE320001" : {
-			"SessionTypeID" : "ST1",
-			"CourseID" : null,
-			"FacultyID" : "F9087",
-			"SessionTime" : "9.00am",
-			"SessionLocation" : "11.0.404"
+			"sessionTypeID" : "ST1",
+			"courseID" : null,
+			"facultyID" : "F9087",
+			"title": "Programming workshop",
+			"description" : "a workshop about android studio and firebase",
+			"sessionTime" : "9.00am",
+			"sessionLocation" : "11.0.404",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0
 		}
 	},
 
-	"SessionType" : {
+	"sessionType" : {
 		"ST0" : {
-			"SessionType" : "Session"
+			"sessionType" : "Session"
 		},
 		"ST1" : {
-			"SessionType" : "Workshop"
+			"sessionType" : "Workshop"
 		},
 		"ST2" : {
-			"SessionType" : "Program"
+			"sessionType" : "Program"
 		}
 	}
 
