@@ -4,26 +4,23 @@ package com.e.sdp.sdpapp;
  * Created by ben on 26/08/2016.
  */
 public class Session {
-    private String sessionTypeID;
-    private String courseID;
-    private String facultyID;
+    private String skillSetID;
+    private String restrictedFacultyID;
+    private String restrictedCourseID;
     private String title;
+    private String targetGroup;
     private String description;
-    private String sessionTime;
-    private String sessionLocation;
-    private int maxAttendance;
-    private int currentAttendance;
 
     public Session() {}
 
-    public String getSessionTypeID(){
-        return sessionTypeID;
+    public String getskillSetID(){
+        return skillSetID;
     }
-    public String getCourseID(){
-        return courseID;
+    public String getRestrictedFacultyID(){
+        return restrictedFacultyID;
     }
-    public String getFacultyID(){
-        return facultyID;
+    public String getRestrictedCourseID(){
+        return restrictedCourseID;
     }
     public String getTitle(){
         return title;
@@ -31,17 +28,8 @@ public class Session {
     public String getDescription(){
         return description;
     }
-    public String getSessionTime(){
-        return sessionTime;
-    }
-    public String getSessionLocation(){
-        return sessionLocation;
-    }
-    public int getMaxAttendance(){
-        return maxAttendance;
-    }
-    public int getCurrentAttendance(){
-        return currentAttendance;
+    public String getTargetGroup(){
+        return targetGroup;
     }
 
 

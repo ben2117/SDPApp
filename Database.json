@@ -1,5 +1,5 @@
 {
-	"courses" : {
+	"course" : {
 		"C123456" : {
 			"courseName" : "Science In Information Technology"
 		},
@@ -8,7 +8,7 @@
 		}
 	},
 
-	"faculties" : {
+	"faculty" : {
 		"F9087" : {
 			"facultyName": "Faculty of Engineering and Information Technology"
 		}
@@ -17,8 +17,18 @@
 	"students" : {
 		"S00001" : {
 			"name" : "Ben",
+			"preferredFirstName": "Ben",
 			"courseID" : "C123456",
-			"facultyID" : "F9876543"
+			"facultyID" : "F9876543",
+			"homePhone" : "987654",
+			"mobile" : "123456",
+			"bestContactNo": "123456",
+			"dob" : "01/01/2001",
+			"gender": "male",
+			"year" : 1,
+			"status" : "Permanent",
+			"firstLanguage" : "English",
+			"countryOfOrigin" : "Australia"
 		},
 
 		"S00002" : {
@@ -28,44 +38,49 @@
 		}
 	},
 
-	"bookings" : {
+	"booking" : {
 		"B000002" : {
-			"sessionID" : "SE320001",
+			"classID" : "C0001",
 			"studentID" : "S00001",
 			"attended" : false
 		}
 	},
 
-	"waitings" : {
+	"waiting" : {
 		"W00001" : {
-			"sessionID" : "SE320001",
+			"classID" : "C0001",
 			"studentID" : "S00002"
 		}
 	},
 
-	"sessions" : {
-		"SE320001" : {
-			"sessionTypeID" : "ST1",
-			"courseID" : null,
-			"facultyID" : "F9087",
-			"title": "Programming workshop",
-			"description" : "a workshop about android studio and firebase",
-			"sessionTime" : "9.00am",
-			"sessionLocation" : "11.0.404",
-			"maxAttendance" : 20,
-			"currentAttendance" : 0
+	"skillSet" : {
+		"SK001" : {
+			"title" : "Writing Skills"
+		},
+		"SK002" : {
+			"title" : "Presentation + Speaking Skills"
 		}
 	},
 
-	"sessionType" : {
-		"ST0" : {
-			"sessionType" : "Session"
-		},
-		"ST1" : {
-			"sessionType" : "Workshop"
-		},
-		"ST2" : {
-			"sessionType" : "Program"
+	"session" : {
+		"SE001" : {
+			"skillSetID": "SK001",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Writing a Report",
+			"targetGroup": "all students",
+			"description": "Report types, Reports vs essays ,Report structure and components",
+		}
+	},
+
+	"class" : {
+		"C0001" : {
+			"sessionID" : "SE001",
+			"room": "CB01.05.10B",
+			"Date": "2/9/2016",
+			"Time": "12:00 - 13:30",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0
 		}
 	}
 

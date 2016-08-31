@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        DatabaseReference studentsRef = database.getReference("students");
-        DatabaseReference sessionsRef = database.getReference("sessions");
+        DatabaseReference studentsRef = database.getReference("student");
+        DatabaseReference sessionsRef = database.getReference("session");
 
         studentsRef.child("S00001").addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        sessionsRef.child("SE320001").addListenerForSingleValueEvent(
+        sessionsRef.child("SE001").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
