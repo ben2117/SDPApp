@@ -14,7 +14,7 @@
 		}
 	},
 
-	"students" : {
+	"student" : {
 		"S00001" : {
 			"name" : "Ben",
 			"preferredFirstName": "Ben",
@@ -38,36 +38,60 @@
 		}
 	},
 
+	"educationalBackground" : {
+		"EB001" : {
+			"studentID" : "S00001",
+			"type" : "HSC",
+			"mark" : "yes"
+		}
+	},
+
 	"booking" : {
 		"B000002" : {
 			"classID" : "C0001",
 			"studentID" : "S00001",
-			"attended" : false
+			"attended" : false,
+			"alarmType" : "none"
 		}
 	},
 
 	"waiting" : {
 		"W00001" : {
 			"classID" : "C0001",
-			"studentID" : "S00002"
+			"studentID" : "S00002",
+			"queuePosition" : 1
 		}
 	},
 
-	"skillSet" : {
-		"SK001" : {
-			"title" : "Writing Skills"
+	"workshop" : {
+		"w001" : {
+			"title" : "Writing Skills",
+			"type" : "placeholder"
 		},
-		"SK002" : {
-			"title" : "Presentation + Speaking Skills"
+		"w002" : {
+			"title" : "Presentation + Speaking Skills",
+			"type" : "placeholder"
+		},
+		"w003" :{
+			"title" : "Study + Reading Skills",
+			"type" : "placeholder"
 		}
 	},
 
 	"session" : {
 		"SE001" : {
-			"skillSetID": "SK001",
+			"workshopID": "SK001",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
 			"title": "Writing a Report",
+			"targetGroup": "all students",
+			"description": "Report types, Reports vs essays ,Report structure and components"
+		},
+		"SE002" : {
+			"workshopID": "SK001",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Critical Thinking & Writing repeat",
 			"targetGroup": "all students",
 			"description": "Report types, Reports vs essays ,Report structure and components"
 		}

@@ -4,7 +4,7 @@ package com.e.sdp.sdpapp;
  * Created by ben on 26/08/2016.
  */
 public class Session {
-    private String skillSetID;
+    private String workshopID;
     private String restrictedFacultyID;
     private String restrictedCourseID;
     private String title;
@@ -14,7 +14,7 @@ public class Session {
     public Session() {}
 
     public String getskillSetID(){
-        return skillSetID;
+        return workshopID;
     }
     public String getRestrictedFacultyID(){
         return restrictedFacultyID;

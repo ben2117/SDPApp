@@ -5,9 +5,18 @@ package com.e.sdp.sdpapp;
  */
 
 public class Student {
+    private String name;
+    private String preferredFirstName;
     private String courseID;
     private String facultyID;
-    private String name;
+    private String homePhone;
+    private String mobile;
+    private String bestContactNo;
+    private String dob;
+    private String gender;
+    private String year;
+    private String status;
+    private String firstLanguage;
 
     public Student(){}
 
