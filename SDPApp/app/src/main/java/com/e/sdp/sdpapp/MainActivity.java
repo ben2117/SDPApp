@@ -8,6 +8,7 @@ import android.util.Log;
 import com.google.firebase.database.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -52,8 +53,51 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        //
+        //GenericTypeIndicator<List<String>> t = new GenericTypeIndicator<List<String>>() {};
+        // List<String> yourStringArray = dataSnapshot.getValue(t);
+        //
+        //
+
+        final GenericTypeIndicator<List<Student>> t = new GenericTypeIndicator<List<Student>>() {};
+
+        studentsRef.addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //Log.e("Count " ,""+dataSnapshot.);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
        // Query q = myRef.orderByKey();
 
+        DatabaseReference workshopsRef = database.getReference("workshop");
+
+        workshopsRef.addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot child : dataSnapshot.getChildren()){
+                            Log.e("child ", child.getKey());
+                            for(DataSnapshot attr : child.getChildren()){
+                                Log.d("Attr", (String) attr.getValue());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
         Log.d("hello", "hi");
 
 

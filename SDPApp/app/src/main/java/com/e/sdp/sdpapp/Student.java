@@ -12,7 +12,7 @@ public class Student {
     private String homePhone;
     private String mobile;
     private String bestContactNo;
-    private String dob;
+    p rivate String dob;
     private String gender;
     private String year;
     private String status;

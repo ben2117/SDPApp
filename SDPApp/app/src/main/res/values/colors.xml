@@ -3,4 +3,17 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorBlack">#FF000000</color>
+    <color name="colorLoginBackground">#cf0018</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorRed">#dc001a</color>
+    <color name="colorDarkRed">#870012</color>
+    <color name="colorGray">#e7e7e7</color>
+    <color name="colorDefaultBackground">#FFF9F9F9</color>
+    <color name="colorDarkGray">#bbc0c4</color>
+    <color name="colorTabIndicator">#333333</color>
+    <color name="colorGhostWhite">#F5F5F5</color>
+    <color name="transparent">#00000000</color>
+    <color name="faqAnswerBackgroundColor">#f1f1f1</color>
+    <color name="inactiveText">#cccccc</color>
 </resources>
