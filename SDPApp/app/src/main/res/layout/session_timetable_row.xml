@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_timetable_row"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/session_timetable_row_date_txtview"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:gravity="center_horizontal"
+                android:text="09/02/2016"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/session_timetable_row_time_txtview"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:gravity="center_horizontal"
+                android:text="12:00 ~ 13:00"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/session_timetable_row_room_txtview"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:gravity="center_horizontal"
+                android:text=" CB01.05.10B"
+                android:textColor="@color/colorBlack" />
+
+            <ImageView
+                android:id="@+id/session_timetable_row_pencil_imgview"
+                android:layout_width="0dip"
+                android:layout_height="50dp"
+                android:layout_weight="0.1"
+                android:src="@drawable/pencil_inactive" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#bbc0c4"></View>
+
+</LinearLayout>
+

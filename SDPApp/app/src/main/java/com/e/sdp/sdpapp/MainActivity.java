@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     //intent key for caller activity
     private static final String CALLER = "caller";
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     //bind email and password edit text and login btn
     @Bind(R.id.studentID_edtext) EditText studentIdEdText;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Student student = dataSnapshot.getValue(Student.class);
-                        Log.d("student", student.getName());
+                        Log.d("student i am", student.getName());
                     }
 
                     @Override
@@ -98,22 +99,42 @@ public class MainActivity extends AppCompatActivity {
         //before server side validate(), start processDialog
         showProcessDialog();
 
-        if(!serverSideValidate()) {
-            progressDialog.dismiss();
-            Toast.makeText(MainActivity.this, getResources().getString(R.string.loginFailMsg), Toast.LENGTH_SHORT).show();
-            return;
-        }
+        DatabaseReference studentsRef = database.getReference("student");
 
-        //if server-side validation succeeds, then check registration of a student with HELPS
-        if(isRegistered()) {
-            //move directly to main page
-            progressDialog.dismiss();
-            moveTo(MainPageActivity.class);
-        } else {
-            //move to registration page
-            progressDialog.dismiss();
-            moveTo(RegisterActivity.class);
-        }
+        studentsRef.child("S00001").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Student student = dataSnapshot.getValue(Student.class);
+                        Log.e("FROM ME", student.getName());
+
+                        if(!serverSideValidate()) {
+                            progressDialog.dismiss();
+                            Toast.makeText(MainActivity.this, getResources().getString(R.string.loginFailMsg), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        //if server-side validation succeeds, then check registration of a student with HELPS
+                        if(isRegistered()) {
+                            //move directly to main page
+                            progressDialog.dismiss();
+                            moveTo(MainPageActivity.class);
+                        } else {
+                            //move to registration page
+                            progressDialog.dismiss();
+                            moveTo(RegisterActivity.class);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+
+
+
     }
 
     private void showProcessDialog() {

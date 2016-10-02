@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="My Information"
+        android:id="@+id/drawer_myinformation"
+         android:icon="@drawable/drawer_myinfo"/>
+
+    <item android:title="FAQ"
+        android:id="@+id/drawer_faq"
+        android:icon="@drawable/drawer_faq" />
+
+    <item android:title="Logout"
+        android:id="@+id/drawer_logout"
+        android:icon="@drawable/drawer_logout" />
+
+
+
+
+</menu>
