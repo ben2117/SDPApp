@@ -42,6 +42,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     //intent keys for caller and session database key
     private static final String CALLER = "caller";
     private static final String SESSIONKEY = "sessionKey";
+    private static final String STUDENTID = "studentid";
 
     //test code remove or fix me
     DatabaseReference bookingRef;
@@ -49,12 +50,14 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        String studentId;
+        studentId = getActivity().getIntent().getStringExtra(STUDENTID);
+        Log.e("fragment", studentId);
 
         //test code, remove or fix me
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         bookingRef = database.getReference("booking");
-        Query query = bookingRef.orderByChild("studentID").equalTo("S00001");
+        Query query = bookingRef.orderByChild("studentID").equalTo(studentId);
         query.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

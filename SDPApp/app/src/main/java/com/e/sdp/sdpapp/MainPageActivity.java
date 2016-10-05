@@ -38,6 +38,8 @@ public class MainPageActivity extends AppCompatActivity {
     private FragmentTransaction fragmentTransaction;
     private android.support.v7.widget.Toolbar toolbar;
 
+    private String studentId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,8 @@ public class MainPageActivity extends AppCompatActivity {
         setTabFragment();
 
         //get student database key here from intent??
+        studentId = getIntent().getStringExtra("studentid");
+        Log.e("from main page activity", studentId);
     }
 
     private void setDrawer() {
@@ -114,6 +118,7 @@ public class MainPageActivity extends AppCompatActivity {
     private void moveTo(Class toClass) {
         Intent intent = new Intent(MainPageActivity.this, toClass);
         intent.putExtra("caller", Tag.MAINPAGEACTIVITY.toString());
+        intent.putExtra("studentid", studentId);
 
         //put student database key in intent here?? just for when users
         //go to my information page

@@ -15,7 +15,7 @@
 	},
 
 	"student" : {
-		"S00001" : {
+		"1234" : {
 			"name" : "Ben",
 			"preferredFirstName": "Ben",
 			"courseID" : "C123456",
@@ -31,16 +31,28 @@
 			"countryOfOrigin" : "Australia"
 		},
 
-		"S00002" : {
+		"4567" : {
 			"name" : "Lem",
-			"courseID" : "C123445",
-			"facultyID" : "F9876543"
+			"preferredFirstName": "Lem",
+			"courseID" : "C123456",
+			"facultyID" : "F9876543",
+			"homePhone" : "987654",
+			"mobile" : "123456",
+			"bestContactNo": "123456",
+			"dob" : "01/01/2001",
+			"gender": "male",
+			"year" : 1,
+			"status" : "Permanent",
+			"firstLanguage" : "English",
+			"countryOfOrigin" : "Australia"
 		}
+
+
 	},
 
 	"educationalBackground" : {
 		"EB001" : {
-			"studentID" : "S00001",
+			"studentID" : "1234",
 			"type" : "HSC",
 			"mark" : "yes"
 		}
@@ -49,7 +61,7 @@
 	"booking" : {
 		"B000002" : {
 			"classID" : "C0001",
-			"studentID" : "S00001",
+			"studentID" : "1234",
 			"attended" : false,
 			"alarmType" : "none"
 		}
@@ -58,7 +70,7 @@
 	"waiting" : {
 		"W00001" : {
 			"classID" : "C0001",
-			"studentID" : "S00002",
+			"studentID" : "4567",
 			"queuePosition" : 1
 		}
 	},
@@ -106,6 +118,44 @@
 			"maxAttendance" : 20,
 			"currentAttendance" : 0
 		}
-	}
+	},
 
+	"prePopStudent" : {
+		"SS001" : {
+			"name" : "Jim",
+			"courseID" : "C123456",
+			"facultyID" : "F9876543",
+			"email" : "jim@jim.com",
+			"homePhone" : "987654",
+			"mobile" : "123456",
+			"dob" : "01/01/2001"
+		}
+	},
+
+	"faq" : {
+		"F001" :{
+			"question" : "Who can use HELPS?",
+			"answer" : "Any student enrolled in any faculty at UTS, and all members of UTS staff"
+		},
+		"F002" :{
+			"question" : "Where is HELPS?",
+			"answer" : "HELPS is located on Building 1, Level 3 , room 8 (opposite the Careers service)"
+		},
+		"F003" :{
+			"question" : "How much does it cost?",
+			"answer" : "Services are free of tuition fees for non-credit workshops and individual consultations."
+		},
+		"F004" :{
+			"question" : "Can you help me with my assignment?",
+			"answer" : "Yes. HELPS offers various workshops and individual consultations. For more information, check out our website"
+		},
+		"F005" :{
+			"question" : "Can you proofread and correct my assignment?",
+			"answer" : "No. Our role is not to correct grammar or other errors in an assignment. We can help you develop your own editing strategies. You should also use a computer spell-check, find a competent friend and a good dictionary."
+		},
+		"F006" :{
+			"question" : "Can you help me with the content of my assignment?",
+			"answer" : "No. We can’t tell you what to say, we can only help you say it better and more clearly. While we’re happy to act as a sounding board for your ideas, content questions require the specialised disciplinary knowledge of lecturers and tutors in your faculty. You should take specific content questions directly to them."
+		}
+	}
 }

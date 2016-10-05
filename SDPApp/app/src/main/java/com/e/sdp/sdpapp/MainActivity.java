@@ -28,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     //intent key for caller activity
     private static final String CALLER = "caller";
+    private static final String STUDENTID = "studentid";
+
+
     private final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     //bind email and password edit text and login btn
@@ -39,44 +42,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-        DatabaseReference studentsRef = database.getReference("student");
-        DatabaseReference sessionsRef = database.getReference("session");
-
-        studentsRef.child("S00001").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Student student = dataSnapshot.getValue(Student.class);
-                        Log.d("student i am", student.getName());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                }
-        );
-
-
-        sessionsRef.child("SE001").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Session session = dataSnapshot.getValue(Session.class);
-                        Log.d("session", session.getDescription());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                }
-        );
-        // Query q = myRef.orderByKey();
-        Log.d("hello", "hi");
 
         //butterknife binds this view to use @Bind()
         ButterKnife.bind(this);
@@ -99,14 +64,16 @@ public class MainActivity extends AppCompatActivity {
         //before server side validate(), start processDialog
         showProcessDialog();
 
-        DatabaseReference studentsRef = database.getReference("student");
 
-        studentsRef.child("S00001").addListenerForSingleValueEvent(
+        final DatabaseReference studentsRef = database.getReference("student");
+        final DatabaseReference prePopStudentsRef = database.getReference("prePopStudent");
+        final String studentID = studentIdEdText.getText().toString();
+
+        studentsRef.child(studentID).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Student student = dataSnapshot.getValue(Student.class);
-                        Log.e("FROM ME", student.getName());
+                        String studentId = dataSnapshot.getKey();
 
                         if(!serverSideValidate()) {
                             progressDialog.dismiss();
@@ -114,21 +81,47 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
 
-                        //if server-side validation succeeds, then check registration of a student with HELPS
+                        //sorry im hacking this up
+                        //there is a better way but it makes it difficult because its all async
+
+                        /*if server-side validation succeeds, then check registration of a student with HELPS
                         if(isRegistered()) {
                             //move directly to main page
                             progressDialog.dismiss();
-                            moveTo(MainPageActivity.class);
+                            moveTo(MainPageActivity.class, studentId);
+
                         } else {
                             //move to registration page
                             progressDialog.dismiss();
-                            moveTo(RegisterActivity.class);
+                            moveTo(RegisterActivity.class, studentId);
+
                         }
+                        */
+
+                        //if the database returns something then we know he is registered
+                        progressDialog.dismiss();
+                        moveTo(MainPageActivity.class, studentId);
                     }
 
+                    //if the database query fails we try again on prePopStudents
+                    //this is where we enter call back hell
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
+                        prePopStudentsRef.child(studentID).addListenerForSingleValueEvent(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        String studentId = dataSnapshot.getKey();
+                                        progressDialog.dismiss();
+                                        moveTo(RegisterActivity.class, studentId);
+                                    }
 
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                }
+                        );
                     }
                 }
         );
@@ -187,18 +180,18 @@ public class MainActivity extends AppCompatActivity {
 
     //check registration of a student with HELPS
     private boolean isRegistered() {
-        boolean registration = false;
+        boolean registration = true;
 
         return registration;
     }
 
     //move to another activity with slide animation
-    private void moveTo(Class toClass){
+    private void moveTo(Class toClass, String studentID){
         Intent intent = new Intent(MainActivity.this, toClass);
         intent.putExtra(CALLER, Tag.MAINACTIVITY.toString());
 
         //put student database key in intent here?
-
+        intent.putExtra(STUDENTID, studentID);
 
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

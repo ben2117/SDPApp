@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import model.Student;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -29,8 +37,11 @@ public class RegisterActivity extends AppCompatActivity {
     //from login or main page activity
     private String preActivityTag;
 
+    private String studentId;
+
     //intent key for caller activity
     private static final String CALLER = "caller";
+    private static final String STUDENTID = "studentid";
 
     //bind pre-populated info views
     @Bind(R.id.stname_textview) TextView stnameTextview;
@@ -79,6 +90,8 @@ public class RegisterActivity extends AppCompatActivity {
         preActivityTag = getIntent().getStringExtra(CALLER);
 
         //get student database key from intent here?
+        studentId = getIntent().getStringExtra(STUDENTID);
+        Log.e("preActivityTag", studentId);
     }
 
     //set submit and back button listener
@@ -111,11 +124,47 @@ public class RegisterActivity extends AppCompatActivity {
 
     //prepopulate the UTS student information
     private void prepopulate() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference studentsRef = database.getReference("prePopStudent");
+        studentsRef.child(studentId).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Student student = dataSnapshot.getValue(Student.class);
+                        stnameTextview.setText(student.getName());
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
 
     }
 
     //populate registered student information
     private void populateRegisteredStudentInfo() {
+        Log.e("hi", " i am pop reg");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference studentsRef = database.getReference("student");
+        studentsRef.child(studentId).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Student student = dataSnapshot.getValue(Student.class);
+                        stnameTextview.setText(student.getName());
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+
     }
 
     //submit method to send data to database here? with validation
