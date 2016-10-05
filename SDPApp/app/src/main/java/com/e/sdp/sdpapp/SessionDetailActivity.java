@@ -3,6 +3,7 @@ package com.e.sdp.sdpapp;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -11,11 +12,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import model.Booking;
 import model.Class;
 
 public class SessionDetailActivity extends AppCompatActivity {
@@ -78,19 +86,39 @@ public class SessionDetailActivity extends AppCompatActivity {
 
 
         //populate session info method needed
+        String bookingKey = getIntent().getStringExtra(SESSIONKEY);
+        Log.e("booking", bookingKey);
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference bookingRef = database.getReference("booking");
+
+        bookingRef.child(bookingKey).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Booking myBooking = dataSnapshot.getValue(Booking.class);
+                        addTimetableRow(myBooking, "key");
+                        Log.e("i was called", "here i am");
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
 
 
-        //test remove me
-        Class aclass = new Class();
+                        //test remove me
+       /* Class aclass = new Class();
         aclass.setDate("21/21/2016");
         aclass.setRoom("CB01.05.10C");
         aclass.setTime("12:00 ~ 13:00");
         addTimetableRow(aclass, "key");
 
-
+        */
     }
 
-    private void addTimetableRow(Class aClass, String classKey) {
+    private void addTimetableRow(Booking aClass, String classKey) {
         View sessionTimetableRow = getSessionTimetableLayout(aClass);
         sessionTimetableRow.setTag(classKey);
 
@@ -99,7 +127,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         sessionTimetableLayout.addView(sessionTimetableRow);
     }
 
-    private View getSessionTimetableLayout(Class aClass) {
+    private View getSessionTimetableLayout(Booking aClass) {
         View sessionTimetableRow = layoutInflater.inflate(R.layout.session_timetable_row, sessionTimetableLayout, false);
         ImageView pencilImgView = (ImageView) sessionTimetableRow.findViewById(R.id.session_timetable_row_pencil_imgview);
 
@@ -129,7 +157,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         return passed;
     }
 
-    private void populateTimetableInfo(Class aClass, View sessionTimetableRow) {
+    private void populateTimetableInfo(Booking aClass, View sessionTimetableRow) {
         TextView txtView = null;
 
         Boolean passed = isPassed(aClass.getDate());

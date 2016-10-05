@@ -13,8 +13,13 @@ public class Booking {
     private String studentID;
     private Boolean attended;
     private String alarmType;
+    private String title;
+    private String room;
+    private String date;
+    private String time;
 
     public Booking() {}
+
 
     public String getClassID() {
         return classID;
@@ -46,5 +51,37 @@ public class Booking {
 
     public void setAlarmType(String alarmType) {
         this.alarmType = alarmType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

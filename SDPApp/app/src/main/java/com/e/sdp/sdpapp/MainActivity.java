@@ -67,13 +67,13 @@ public class MainActivity extends AppCompatActivity {
 
         final DatabaseReference studentsRef = database.getReference("student");
         final DatabaseReference prePopStudentsRef = database.getReference("prePopStudent");
-        final String studentID = studentIdEdText.getText().toString();
+        final String studentIDInput = studentIdEdText.getText().toString();
 
-        studentsRef.child(studentID).addListenerForSingleValueEvent(
+        studentsRef.child(studentIDInput).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        String studentId = dataSnapshot.getKey();
+
 
                         if(!serverSideValidate()) {
                             progressDialog.dismiss();
@@ -97,17 +97,19 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                         */
-
+                        String studentId = dataSnapshot.getKey();
+                        Log.e("hello", "Word");
                         //if the database returns something then we know he is registered
                         progressDialog.dismiss();
                         moveTo(MainPageActivity.class, studentId);
+
                     }
 
                     //if the database query fails we try again on prePopStudents
                     //this is where we enter call back hell
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        prePopStudentsRef.child(studentID).addListenerForSingleValueEvent(
+                        prePopStudentsRef.child(studentIDInput).addListenerForSingleValueEvent(
                                 new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {

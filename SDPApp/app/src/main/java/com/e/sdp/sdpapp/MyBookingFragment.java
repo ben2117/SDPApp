@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -21,7 +22,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 import model.Booking;
+import model.Workshop;
 
 /**
  * Created by kisungtae on 15/09/2016.
@@ -50,12 +54,14 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String studentId;
+        final String studentId;
         studentId = getActivity().getIntent().getStringExtra(STUDENTID);
         Log.e("fragment", studentId);
 
-        //test code, remove or fix me
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        //test code, remove or fix me
+        //final FirebaseDatabase database = FirebaseDatabase.getInstance();
         bookingRef = database.getReference("booking");
         Query query = bookingRef.orderByChild("studentID").equalTo(studentId);
         query.addChildEventListener(new ChildEventListener() {
@@ -95,6 +101,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
             }
         });
+
     }
 
     @Nullable
@@ -151,7 +158,14 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
     //here populate the session info to view
     private void populateSessionInfo(Booking booking, View myBookingRow) {
-
+        TextView room =  (TextView) myBookingRow.findViewById(R.id.booking_row_session_location);
+        room.setText(booking.getRoom());
+        TextView title =  (TextView) myBookingRow.findViewById(R.id.booking_row_session_title_txtview);
+        title.setText(booking.getTitle());
+        TextView date = (TextView) myBookingRow.findViewById(R.id.booking_row_session_date);
+        date.setText(booking.getDate());
+        TextView time = (TextView) myBookingRow.findViewById(R.id.booking_row_session_time);
+        time.setText(booking.getDate());
     }
 
     private void setAlarmImgView(ImageView imgView, String alarmType) {

@@ -28,7 +28,8 @@
 			"year" : 1,
 			"status" : "Permanent",
 			"firstLanguage" : "English",
-			"countryOfOrigin" : "Australia"
+			"countryOfOrigin" : "Australia",
+			"password" : "password"
 		},
 
 		"4567" : {
@@ -63,8 +64,23 @@
 			"classID" : "C0001",
 			"studentID" : "1234",
 			"attended" : false,
-			"alarmType" : "none"
+			"alarmType" : "none",
+			"title" : "Writing Skills",
+			"room": "CB01.05.10B",
+			"date": "2/9/2016",
+			"time": "12:00 - 13:30"
+		},
+		"B000003" : {
+			"classID" : "C0001",
+			"studentID" : "1234",
+			"attended" : false,
+			"alarmType" : "none",
+			"title" : "Another Booking",
+			"room": "CB01.05.10B",
+			"date": "2/9/2016",
+			"time": "12:00 - 13:30"
 		}
+
 	},
 
 	"waiting" : {
@@ -113,8 +129,8 @@
 		"C0001" : {
 			"sessionID" : "SE001",
 			"room": "CB01.05.10B",
-			"Date": "2/9/2016",
-			"Time": "12:00 - 13:30",
+			"date": "2/9/2016",
+			"time": "12:00 - 13:30",
 			"maxAttendance" : 20,
 			"currentAttendance" : 0
 		}
