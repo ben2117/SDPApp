@@ -58,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
     private void login() {
         //if client side validation fails, then stop
         if(!clientSideValidate()) {
+            //set error here as we dont want to make it known if a password is wrong or if a user name is wrong ~ Tex
+            studentIdEdText.setError("Enter a valid student ID");
+            passwordEdText.setError("Enter a valid password");
+            //end of tex's silly buggers
             return;
         }
 
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+    //client validate can be put into 1 if statement and doesnt need the boolean "valid"
     private boolean clientSideValidate() {
         boolean valid = true;
 
@@ -159,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         //
         if(studentID.length() > 10 || studentID.length() < 8) {
-            studentIdEdText.setError("Enter a valid student ID");
+            //studentIdEdText.setError("Enter a valid student ID");
             valid = false;
         } else {
             studentIdEdText.setError(null);
@@ -167,14 +172,31 @@ public class MainActivity extends AppCompatActivity {
 
         //we can add validation for special characters like "@" symbol
         if(password.length() > 16 || password.length() < 8) {
-            passwordEdText.setError("Enter a valid password");
+           // passwordEdText.setError("Enter a valid password");
             valid = false;
         } else {
-            passwordEdText.setError(null);
+            //Added a .contains checker for non valid cases such as @ ~ Tex
+            String invalidChars = "!@#$%^&*()_+-=";
+            for(int i = 0; i < password.length();i++){
+                if(invalidChars.contains(Character.toString(password.charAt(i)))){
+                    //passwordEdText.setError("bad input!");
+                    valid = false;
+
+                }
+
+
+            }
+
+            //end of tex's sillybuggers
+
+            if(valid){
+                passwordEdText.setError(null);
+            }
+
         }
 
         //-----start test code, remove me ---------------
-        valid = true;
+        //valid = true;
 
 
         return valid;
