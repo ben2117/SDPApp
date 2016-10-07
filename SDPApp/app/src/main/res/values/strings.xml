@@ -23,11 +23,11 @@
 
     <string-array name="academic_year">
         <item></item>
-        <item>1st year</item>
-        <item>2nd year</item>
-        <item>3rd year</item>
-        <item>4th year</item>
-        <item>5th year</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
 
     <string-array name="language">

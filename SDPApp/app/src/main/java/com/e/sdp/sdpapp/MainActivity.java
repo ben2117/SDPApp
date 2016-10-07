@@ -63,59 +63,40 @@ public class MainActivity extends AppCompatActivity {
 
         //before server side validate(), start processDialog
         showProcessDialog();
-
-
         final DatabaseReference studentsRef = database.getReference("student");
         final DatabaseReference prePopStudentsRef = database.getReference("prePopStudent");
         final String studentIDInput = studentIdEdText.getText().toString();
+        final String passwordInput = passwordEdText.getText().toString();
 
-        studentsRef.child(studentIDInput).addListenerForSingleValueEvent(
+        studentsRef.addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        //look through students in our database first
+                        for(DataSnapshot child : dataSnapshot.getChildren()){
+                            if(child.getKey().equals(studentIDInput)){
+                                Student student = child.getValue(Student.class);
+                                if (student.getPassword().equals(passwordInput)) {
+                                    progressDialog.dismiss();
+                                    moveTo(MainPageActivity.class, studentIDInput);
+                                }
 
-
-                        if(!serverSideValidate()) {
-                            progressDialog.dismiss();
-                            Toast.makeText(MainActivity.this, getResources().getString(R.string.loginFailMsg), Toast.LENGTH_SHORT).show();
-                            return;
+                            }
                         }
-
-                        //sorry im hacking this up
-                        //there is a better way but it makes it difficult because its all async
-
-                        /*if server-side validation succeeds, then check registration of a student with HELPS
-                        if(isRegistered()) {
-                            //move directly to main page
-                            progressDialog.dismiss();
-                            moveTo(MainPageActivity.class, studentId);
-
-                        } else {
-                            //move to registration page
-                            progressDialog.dismiss();
-                            moveTo(RegisterActivity.class, studentId);
-
-                        }
-                        */
-                        String studentId = dataSnapshot.getKey();
-                        Log.e("hello", "Word");
-                        //if the database returns something then we know he is registered
-                        progressDialog.dismiss();
-                        moveTo(MainPageActivity.class, studentId);
-
-                    }
-
-                    //if the database query fails we try again on prePopStudents
-                    //this is where we enter call back hell
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        prePopStudentsRef.child(studentIDInput).addListenerForSingleValueEvent(
+                        prePopStudentsRef.addListenerForSingleValueEvent(
                                 new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        String studentId = dataSnapshot.getKey();
-                                        progressDialog.dismiss();
-                                        moveTo(RegisterActivity.class, studentId);
+                                        //if no students are found, look through pre pop students
+                                        for(DataSnapshot child : dataSnapshot.getChildren()) {
+                                            if(child.getKey().equals(studentIDInput)){
+                                                Student student = child.getValue(Student.class);
+                                                if (student.getPassword().equals(passwordInput)) {
+                                                    progressDialog.dismiss();
+                                                    moveTo(RegisterActivity.class, studentIDInput);
+                                                }
+                                            }
+                                        }
                                     }
 
                                     @Override
@@ -124,6 +105,11 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                         );
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 }
         );

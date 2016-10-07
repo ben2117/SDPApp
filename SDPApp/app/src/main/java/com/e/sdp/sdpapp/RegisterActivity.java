@@ -10,24 +10,34 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import model.EducationalBackground;
 import model.Student;
 
 
@@ -38,6 +48,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String preActivityTag;
 
     private String studentId;
+
+    private List<CheckBox> checkedCheckBoxes;
 
     //intent key for caller activity
     private static final String CALLER = "caller";
@@ -76,25 +88,23 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        //get previous tag and student database key
         setup();
 
         //set back and submit button listener
         setButtonListeners();
 
-        //prepopulate user details
+        //populate information about student
         populate();
     }
 
     private void setup() {
         ButterKnife.bind(this);
         preActivityTag = getIntent().getStringExtra(CALLER);
-
-        //get student database key from intent here?
         studentId = getIntent().getStringExtra(STUDENTID);
         Log.e("preActivityTag", studentId);
     }
 
-    //set submit and back button listener
     private void setButtonListeners() {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,14 +121,13 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    //non-registered user can only get to registration page from login page
-    //if it is from login page, then only prepopulate UTS student information
-    //if it is from mainpage which means registered student,
-    //then populate both UTS student information and HELPS student information
+    //pre tag == login, then only prepopulate
+    //pre tag == mainpage, then both prepopulate and populateRegisteredStinfo
     private void populate() {
         prepopulate();
         if(preActivityTag.equals(Tag.MAINPAGEACTIVITY.toString())) {
             populateRegisteredStudentInfo();
+            populateEducationBackground();
         }
     }
 
@@ -126,13 +135,20 @@ public class RegisterActivity extends AppCompatActivity {
     private void prepopulate() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference studentsRef = database.getReference("prePopStudent");
-        studentsRef.child(studentId).addListenerForSingleValueEvent(
+
+        //for test, change "SS001" to studentID after fixing database
+        studentsRef.child("SS001").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Student student = dataSnapshot.getValue(Student.class);
                         stnameTextview.setText(student.getName());
-
+                        stemailTextview.setText(student.getEmail());
+                        homephoneTextview.setText(student.getHomePhone());
+                        mobileTextview.setText(student.getMobile());
+                        dateofbirthTextview.setText(student.getDob());
+                        setDataFromDatabasePath("course", student.getCourseID() + "/courseName", courseTextview);
+                        setDataFromDatabasePath("faculty", student.getFacultyID() + "/facultyName", facultyTextview);
                     }
 
                     @Override
@@ -141,21 +157,59 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
 
+    //just for course and faculty txtviews
+    private void setDataFromDatabasePath(String ref, String childPath, final TextView txtView) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference dataRef = database.getReference(ref);
+        dataRef.child(childPath).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                txtView.setText(dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     //populate registered student information
     private void populateRegisteredStudentInfo() {
-        Log.e("hi", " i am pop reg");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Log.e("hi", " i am pop reg");
         DatabaseReference studentsRef = database.getReference("student");
         studentsRef.child(studentId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Student student = dataSnapshot.getValue(Student.class);
-                        stnameTextview.setText(student.getName());
 
+                        //preferred first name and gender
+                        //non-compulsory fields
+                        String preferFirstName = student.getPreferredFirstName();
+                        if(!preferFirstName.isEmpty()) {
+                            preferedNameEd.setText(preferFirstName);
+                        }
+
+                        String gender = student.getGender();
+                        if (!gender.isEmpty()) {
+                          setRadioBtnCheck(gender, genderRadioGrp);
+                        }
+
+                        //best contact, degree, status,
+                        //academic year, first language, country of birth
+                        //compulsory fields
+                        bestContactEd.setText(student.getBestContactNo());
+                        setRadioBtnCheck(student.getStatus(), statusRadioGrp);
+                        academicYearSpnr.setSelection(getSelectedItemPosition(academicYearSpnr, String.valueOf(student.getYear())));
+                        countrySpnr.setSelection(getSelectedItemPosition(countrySpnr, student.getCountryOfOrigin()));
+                        firstLanguageSpnr.setSelection(getSelectedItemPosition(firstLanguageSpnr, student.getFirstLanguage()));
+
+                        //For test, commnet in after degree to the database
+                        //setRadioBtnCheck(student.getDegree());
                     }
 
                     @Override
@@ -164,82 +218,188 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
 
+    //for setting spinner selected item
+    private int getSelectedItemPosition(Spinner spnr, String value) {
+        int index = 0;
+        for(int i = 0; i < spnr.getCount(); i++) {
+            if(spnr.getItemAtPosition(i).equals(value)) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    private void setRadioBtnCheck(String id, RadioGroup radioGroup) {
+        RadioButton rdobtn = (RadioButton) radioGroup.findViewById(getResources().getIdentifier(id, "id", getPackageName()));
+        rdobtn.setChecked(true);
     }
 
     //submit method to send data to database here? with validation
     private void submit() {
-
-        //---------start test, change validate() --> !validate()--------------
-        if(validate()) {
+        if(!validate()) {
             Toast.makeText(RegisterActivity.this, "Please enter required information", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
-        //try and catch in the saveToDatabase?
-        //so that we can stop here if saving to database fails
+        //save the data to the database
         saveToDatabase();
 
         //either to directly move to main page or to display Toast message based on pre tag?
         moveToPageOnPreTag();
     }
 
-    //validate input details in registration form
-    //to make sure all the compulsory questions are answered
     private boolean validate() {
         boolean valid = true;
 
-        String bestContact = bestContactEd.getText().toString();
-        int degreeRadioBtnID = degreeRadioGrp.getCheckedRadioButtonId();
-        int statusRadioBtnId = statusRadioGrp.getCheckedRadioButtonId();
-        String academicYear = academicYearSpnr.getSelectedItem().toString();
-        String firstLanguage = firstLanguageSpnr.getSelectedItem().toString();
-        String country = countrySpnr.getSelectedItem().toString();
-
-        if(bestContact.isEmpty()) {
+        if(bestContactEd.getText().toString().isEmpty()) {
             valid = false;
         }
 
         //getCheckedRadioButtonId returns -1 if nothing is checked
-        if(degreeRadioBtnID == -1) {
+        if(degreeRadioGrp.getCheckedRadioButtonId() == -1) {
             valid = false;
         } else {
         }
 
-        if(statusRadioBtnId == -1) {
+        if(statusRadioGrp.getCheckedRadioButtonId() == -1) {
             valid = false;
         }
 
-        if(academicYear.isEmpty()) {
+        if(academicYearSpnr.getSelectedItem().toString().isEmpty()) {
             valid = false;
         }
 
-        if(firstLanguage.isEmpty()) {
+        if(firstLanguageSpnr.getSelectedItem().toString().isEmpty()) {
             valid = false;
         }
 
-        if(country.isEmpty()) {
+        if(countrySpnr.getSelectedItem().toString().isEmpty()) {
             valid = false;
         }
 
         return valid;
     }
 
-
-    //if previous activity is login, then move to main page directly
-    //if previous activity is main page, then just display update success message
-    //to allow users to check updated information in registration page??????
-    private void moveToPageOnPreTag() {
-        if(preActivityTag.equals(Tag.MAINACTIVITY.toString())) {
-            moveTo(MainPageActivity.class);
-        } else {
-            Toast.makeText(RegisterActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     //save to database
     private void saveToDatabase() {
+        String preferredFirstName = preferedNameEd.getText().toString();
+        String bestContact = bestContactEd.getText().toString();
+        String academicYear = academicYearSpnr.getSelectedItem().toString();
+        String firstLanguage = firstLanguageSpnr.getSelectedItem().toString();
+        String country = countrySpnr.getSelectedItem().toString();
+        //String degree = getStringFromRdoBtn(degreeRadioGrp);
+        String status = getStringFromRdoBtn(statusRadioGrp);
+        String gender = getStringFromRdoBtn(genderRadioGrp);
+
+        Student student = new Student();
+        student.setPreferredFirstName(preferredFirstName);
+        student.setBestContactNo(bestContact);
+        student.setGender(gender);
+        student.setStatus(status);
+        student.setYear(Integer.valueOf(academicYear));
+        student.setFirstLanguage(firstLanguage);
+        student.setCountryOfOrigin(country);
+
+        //For test, comment in after fixing database
+        //student.setDegree(degree);
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference studentsRef = database.getReference("student");
+        studentsRef.child(studentId).setValue(student);
+
+        saveEducationalBackgroundToDatabase();
+    }
+
+    private void saveEducationalBackgroundToDatabase() {
+        checkedCheckBoxes = new ArrayList<CheckBox>();
+        for(int i = 0; i < checkBoxLayout.getChildCount(); i++) {
+            View childView = checkBoxLayout.getChildAt(i);
+            if(childView instanceof CheckBox) {
+                CheckBox childCheckBox = (CheckBox) childView;
+                if(childCheckBox.isChecked()) {
+
+                    final EducationalBackground newEd = new EducationalBackground();
+                    newEd.setStudentID(studentId);
+
+                    String type = String.valueOf(childCheckBox.getText()).replace(" ", "").toLowerCase();
+                    newEd.setType(type);
+
+                    int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
+                    String tag = getResources().getResourceName(checkBoxId);
+                    EditText editTxt = (EditText) checkBoxLayout.findViewWithTag(tag);
+                    String mark = String.valueOf(editTxt.getText());
+
+                    if(!mark.isEmpty()) {
+                        newEd.setMark(mark);
+
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        final DatabaseReference edRef = database.getReference("educationalBackground");
+                        Query query = edRef.orderByChild("studentID").equalTo(studentId);
+                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                                    EducationalBackground ed = ds.getValue(EducationalBackground.class);
+                                    if(ed.getType().equals(newEd.getType())) {
+                                        ds.getRef().setValue(newEd);
+                                    } else {
+                                        DatabaseReference newEd = edRef.push();
+                                        newEd.setValue(newEd);
+                                        //edRef.push().setValue(newEd);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    private String getStringFromRdoBtn(RadioGroup rdoGrp) {
+        int checkRdoBtnId = rdoGrp.getCheckedRadioButtonId();
+        RadioButton rdoBtn = (RadioButton) rdoGrp.findViewById(checkRdoBtnId);
+        return rdoBtn.getText().toString().toLowerCase();
+    }
+
+    private void populateEducationBackground() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference educationalBackgroundRef = database.getReference("educationalBackground");
+        Query query = educationalBackgroundRef.orderByChild("studentID").equalTo(studentId);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    EducationalBackground ed = ds.getValue(EducationalBackground.class);
+                    setEducationalBackground(ed);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setEducationalBackground(EducationalBackground ed) {
+        String type = ed.getType();
+        int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
+        String tag = getResources().getResourceName(checkBoxId);
+        CheckBox checkBox = (CheckBox) findViewById(checkBoxId);
+        checkBox.setChecked(true);
+        addEditTextBelowCheckBox(checkBox);
+        EditText edit = (EditText) checkBoxLayout.findViewWithTag(tag);
+        edit.setText(ed.getMark());
     }
 
     //set checkbox listener to show and hide corresponding edittext view
@@ -260,6 +420,7 @@ public class RegisterActivity extends AppCompatActivity {
         EditText ed = new EditText(RegisterActivity.this);
         ed.setMaxLines(1);
         ed.setTag(checkBox.getResources().getResourceName(checkBox.getId()));
+        Log.e("dd", checkBox.getResources().getResourceName(checkBox.getId()));
         checkBoxLayout.addView(ed, position + 1);
     }
 
@@ -287,11 +448,19 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void moveTo(Class toClass) {
-        Intent intentToMainPage = new Intent(RegisterActivity.this, toClass);
-        startActivity(intentToMainPage);
-
-        //put student database key in intent here?
-
+        Intent intent = new Intent(RegisterActivity.this, toClass);
+        intent.putExtra(STUDENTID, studentId);
+        startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    //if previous activity is login, then move to main page directly
+    //if previous activity is main page, then just display update success message
+    private void moveToPageOnPreTag() {
+        if(preActivityTag.equals(Tag.MAINACTIVITY.toString())) {
+            moveTo(MainPageActivity.class);
+        } else {
+            Toast.makeText(RegisterActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
+        }
     }
 }

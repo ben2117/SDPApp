@@ -282,22 +282,22 @@
                     android:orientation="horizontal">
 
                     <RadioButton
-                        android:id="@+id/male_radiobtn"
+                        android:id="@+id/male"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Male" />
 
                     <RadioButton
-                        android:id="@+id/female_radiobtn"
+                        android:id="@+id/female"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Female" />
 
                     <RadioButton
-                        android:id="@+id/intersex_radiobtn"
+                        android:id="@+id/intersex"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Intersex/unspecified" />
+                        android:text="Intersex" />
                 </RadioGroup>
 
                 <TextView
@@ -315,13 +315,13 @@
                     android:orientation="horizontal">
 
                     <RadioButton
-                        android:id="@+id/undergraduate_radiobtn"
+                        android:id="@+id/undergraduate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Undergraduate" />
 
                     <RadioButton
-                        android:id="@+id/postgraduate_radiobtn"
+                        android:id="@+id/postgraduate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Postgraduate" />
@@ -342,13 +342,13 @@
                     android:orientation="horizontal">
 
                     <RadioButton
-                        android:id="@+id/international_radiobtn"
+                        android:id="@+id/international"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="International" />
 
                     <RadioButton
-                        android:id="@+id/permanent_radiobtn"
+                        android:id="@+id/permanent"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Permanent" />
@@ -431,7 +431,7 @@
                 android:paddingTop="20dp">
 
                 <CheckBox
-                    android:id="@+id/hsc_checkbox"
+                    android:id="@+id/hsc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="onCheckboxClicked"
@@ -439,7 +439,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/ielts_checkbox"
+                    android:id="@+id/ielts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -448,7 +448,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/toefl_checkbox"
+                    android:id="@+id/toefl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -457,7 +457,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/tafe_checkbox"
+                    android:id="@+id/tafe"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -466,7 +466,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/cult_checkbox"
+                    android:id="@+id/cult"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -475,7 +475,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/insearchdeep_checkbox"
+                    android:id="@+id/insearchdeep"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -484,7 +484,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/insearchdiploma_checkbox"
+                    android:id="@+id/insearchdiploma"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -493,7 +493,7 @@
                     android:textSize="15sp" />
 
                 <CheckBox
-                    android:id="@+id/foundationcourse_checkbox"
+                    android:id="@+id/foundationcourse"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"

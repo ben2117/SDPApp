@@ -15,7 +15,6 @@ public class Faq {
         return answer;
     }
 
-    //for test, remove me
     public void setAnswer(String answer) {
         this.answer = answer;
     }
@@ -24,7 +23,6 @@ public class Faq {
         return question;
     }
 
-    //for test, remove me
     public void setQuestion(String question) {
         this.question = question;
     }
