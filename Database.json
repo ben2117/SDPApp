@@ -68,7 +68,9 @@
 			"title" : "Writing Skills",
 			"room": "CB01.05.10B",
 			"date": "2/9/2016",
-			"time": "12:00 - 13:30"
+			"time": "12:00 - 13:30",
+			"covers" : "stuff about writing",
+			"tagets" : "all students"
 		},
 		"B000003" : {
 			"classID" : "C0001",
@@ -78,7 +80,9 @@
 			"title" : "Another Booking",
 			"room": "CB01.05.10B",
 			"date": "2/9/2016",
-			"time": "12:00 - 13:30"
+			"time": "12:00 - 13:30",
+			"covers" : "stuff about bookings",
+			"tagets" : "all students"
 		}
 
 	},

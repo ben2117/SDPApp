@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +20,17 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import model.Workshop;
 
 /**
  * Created by kisungtae on 15/09/2016.
@@ -62,6 +71,34 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
 
         searchBarEdTxtview.addTextChangedListener(this);
         searchBarEdTxtview.setOnFocusChangeListener(this);
+
+
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        DatabaseReference workshospRef = database.getReference("workshop");
+
+        workshospRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot child : dataSnapshot.getChildren()) {
+                            Workshop workshop = child.getValue(Workshop.class);
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+
+
+
+
+
 
         return searchView;
     }

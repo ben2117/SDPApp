@@ -18,6 +18,9 @@ public class Booking {
     private String date;
     private String time;
 
+    private String covers;
+    private String targets;
+
     public Booking() {}
 
 
@@ -83,5 +86,21 @@ public class Booking {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getCovers() {
+        return covers;
+    }
+
+    public void setCovers(String covers) {
+        this.covers = covers;
+    }
+
+    public String getTargets() {
+        return targets;
+    }
+
+    public void setTargets(String targets) {
+        this.targets = targets;
     }
 }

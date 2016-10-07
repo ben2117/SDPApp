@@ -98,6 +98,13 @@ public class SessionDetailActivity extends AppCompatActivity {
                         Booking myBooking = dataSnapshot.getValue(Booking.class);
                         addTimetableRow(myBooking, "key");
                         Log.e("i was called", "here i am");
+
+                        sessionTitleTxtview.setText(myBooking.getTitle());
+                        sessionDateTxtview.setText(myBooking.getDate());
+                        sessionPlaceTxtview.setText(myBooking.getRoom());
+                        sessionCoverTxtview.setText(myBooking.getCovers());
+                        sessionTargetTxtview.setText(myBooking.getTargets());
+
                     }
 
                     @Override

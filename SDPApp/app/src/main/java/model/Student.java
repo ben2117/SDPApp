@@ -18,7 +18,7 @@ public class Student {
     private String firstLanguage;
 
     //new password
-    private String password;
+    private String password ;
 
     //added by michael
     private String email;
