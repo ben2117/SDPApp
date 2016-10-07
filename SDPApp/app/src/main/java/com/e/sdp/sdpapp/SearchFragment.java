@@ -98,25 +98,8 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                                 final Session session = child.getValue(Session.class);
                                                 if(session.getWorkshopID().equals(workshopId)){
                                                     final String sessionId = child.getKey();
-                                                    classRef.addListenerForSingleValueEvent(
-                                                            new ValueEventListener() {
-                                                                @Override
-                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                    for(DataSnapshot child : dataSnapshot.getChildren()) {
-                                                                        Class aClass = child.getValue(Class.class);
-                                                                        if(aClass.getSessionID().equals(sessionId)){
-                                                                            session.addClass(aClass);
-                                                                            workshop.addSession(session);
-
-                                                                        }
-                                                                    }
-                                                                }
-
-                                                                @Override
-                                                                public void onCancelled(DatabaseError databaseError) {
-                                                                }
-                                                            }
-                                                    );
+                                                    session.setSeesionId(sessionId);
+                                                    workshop.addSession(session);
                                                 }
                                             }
                                         }

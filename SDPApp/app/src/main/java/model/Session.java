@@ -13,11 +13,10 @@ public class Session {
     private String title;
     private String targetGroup;
     private String description;
+    private String seesionId;
 
-    private ArrayList<Class> classes;
 
     public Session() {
-        classes = new ArrayList<>();
     }
 
 
@@ -70,6 +69,10 @@ public class Session {
     }
 
     public void addClass(Class aClass) {
-        classes.add(aClass);
+        //classes.add(aClass);
+    }
+
+    public void setSeesionId(String seesionId) {
+        this.seesionId = seesionId;
     }
 }
