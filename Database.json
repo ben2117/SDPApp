@@ -56,7 +56,18 @@
 			"studentID" : "1234",
 			"type" : "HSC",
 			"mark" : "yes"
+		},
+		"EB002" : {
+			"studentID" : "4567",
+			"type" : "TAFE",
+			"mark" : "good"
+		},
+		"EB003" : {
+			"studentID" : "4567",
+			"type" : "HSC",
+			"mark" : "also good"
 		}
+
 	},
 
 	"booking" : {
@@ -112,7 +123,7 @@
 
 	"session" : {
 		"SE001" : {
-			"workshopID": "SK001",
+			"workshopID": "w001",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
 			"title": "Writing a Report",
@@ -120,7 +131,7 @@
 			"description": "Report types, Reports vs essays ,Report structure and components"
 		},
 		"SE002" : {
-			"workshopID": "SK001",
+			"workshopID": "w001",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
 			"title": "Critical Thinking & Writing repeat",

@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+
 /**
  * Created by kisungtae on 22/09/2016.
  */
@@ -11,8 +13,30 @@ public class Workshop {
 
     private String title;
     private String type;
+    private ArrayList<Session> sessions;
 
-    public Workshop() {}
-    public String getTitle() { return this.title;}
-    public String getType() { return this.type;}
+    public Workshop() {
+        sessions = new ArrayList<>();
+    }
+
+
+    public void addSession(Session session){
+        this.sessions.add(session);
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

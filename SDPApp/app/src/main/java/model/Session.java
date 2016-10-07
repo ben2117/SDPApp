@@ -1,5 +1,8 @@
 package model;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 /**
  * Created by kisungtae on 21/09/2016.
  */
@@ -11,27 +14,62 @@ public class Session {
     private String targetGroup;
     private String description;
 
-    public Session() {}
+    private ArrayList<Class> classes;
 
-    public String getskillSetID(){
+    public Session() {
+        classes = new ArrayList<>();
+    }
+
+
+    public String getWorkshopID() {
         return workshopID;
     }
-    public String getRestrictedFacultyID(){
+
+    public void setWorkshopID(String workshopID) {
+        this.workshopID = workshopID;
+    }
+
+    public String getRestrictedFacultyID() {
         return restrictedFacultyID;
     }
-    public String getRestrictedCourseID(){
+
+    public void setRestrictedFacultyID(String restrictedFacultyID) {
+        this.restrictedFacultyID = restrictedFacultyID;
+    }
+
+    public String getRestrictedCourseID() {
         return restrictedCourseID;
     }
-    public String getTitle(){
+
+    public void setRestrictedCourseID(String restrictedCourseID) {
+        this.restrictedCourseID = restrictedCourseID;
+    }
+
+    public String getTitle() {
         return title;
     }
-    public String getDescription(){
-        return description;
+
+    public void setTitle(String title) {
+        this.title = title;
     }
-    public String getTargetGroup(){
+
+    public String getTargetGroup() {
         return targetGroup;
     }
 
+    public void setTargetGroup(String targetGroup) {
+        this.targetGroup = targetGroup;
+    }
 
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void addClass(Class aClass) {
+        classes.add(aClass);
+    }
 }

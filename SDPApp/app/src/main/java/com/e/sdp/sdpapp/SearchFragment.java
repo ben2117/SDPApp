@@ -27,10 +27,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import model.Workshop;
+import model.*;
+import model.Class;
 
 /**
  * Created by kisungtae on 15/09/2016.
@@ -73,24 +75,61 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         searchBarEdTxtview.setOnFocusChangeListener(this);
 
 
+        final ArrayList<Workshop> workshops = new ArrayList<>();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        DatabaseReference workshospRef = database.getReference("workshop");
+        final DatabaseReference workshospRef = database.getReference("workshop");
+        final DatabaseReference sessionsRef = database.getReference("session");
+        final DatabaseReference classRef = database.getReference("class");
 
         workshospRef.addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for(DataSnapshot child : dataSnapshot.getChildren()) {
-                            Workshop workshop = child.getValue(Workshop.class);
+                            final Workshop workshop = child.getValue(Workshop.class);
+                            final String workshopId = child.getKey();
+                            sessionsRef.addListenerForSingleValueEvent(
+                                    new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            for(DataSnapshot child : dataSnapshot.getChildren()) {
+                                                final Session session = child.getValue(Session.class);
+                                                if(session.getWorkshopID().equals(workshopId)){
+                                                    final String sessionId = child.getKey();
+                                                    classRef.addListenerForSingleValueEvent(
+                                                            new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                                                                        Class aClass = child.getValue(Class.class);
+                                                                        if(aClass.getSessionID().equals(sessionId)){
+                                                                            session.addClass(aClass);
+                                                                            workshop.addSession(session);
 
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                @Override
+                                                                public void onCancelled(DatabaseError databaseError) {
+                                                                }
+                                                            }
+                                                    );
+                                                }
+                                            }
+                                        }
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                        }
+                                    }
+                            );
+                            workshops.add(workshop);
                         }
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
                 }
         );
