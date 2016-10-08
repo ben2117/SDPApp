@@ -29,7 +29,8 @@
 			"status" : "Permanent",
 			"firstLanguage" : "English",
 			"countryOfOrigin" : "Australia",
-			"password" : "password"
+			"password" : "password",
+			"degree" : "undergraduate"
 		},
 
 		"4567" : {
@@ -46,7 +47,8 @@
 			"status" : "Permanent",
 			"firstLanguage" : "English",
 			"countryOfOrigin" : "Australia",
-			"password" : "password"
+			"password" : "password",
+			"degree" : "postgraduate"
 		}
 
 
@@ -74,6 +76,11 @@
 	"booking" : {
 		"B01" : {
 			"sessionID" : "SE001",
+			"studentID" : "1234",
+			"alarmType" : "none"
+		},
+		"B02" :{
+			"sessionID" : "SE002",
 			"studentID" : "1234",
 			"alarmType" : "none"
 		}
@@ -136,7 +143,56 @@
 			"maxAttendance" : 20,
 			"currentAttendance" : 0,
 			"date" : "1/1/10 - 1/2/10"
+		},
+		"SE003" : {
+			"workshopID": "w002",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Manical Thinking & Writing repeat",
+			"targetGroup": "all students",
+			"description": "thinking about other things",
+			"tutor" : "mike",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
+		},
+		"SE004" : {
+			"workshopID": "w003",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Manical Thinking & Writing repeat",
+			"targetGroup": "all students",
+			"description": "thinking about other things",
+			"tutor" : "mike",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
+		},
+		"SE005" : {
+			"workshopID": "w003",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Study Skills",
+			"targetGroup": "all students",
+			"description": "studying about other things",
+			"tutor" : "mike",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
+		},
+		"SE006" : {
+			"workshopID": "w003",
+			"restrictedFacultyID" : null,
+			"restrictedCourseID" : null,
+			"title": "Counting SKills",
+			"targetGroup": "all students",
+			"description": "counting about other things",
+			"tutor" : "mike",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
 		}
+
 	},
 
 	"class" : {

@@ -99,13 +99,13 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                                     workshop.addSession(session);
                                                 }
                                             }
+                                            workshops.add(workshop);
                                         }
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {
                                         }
                                     }
                             );
-                            workshops.add(workshop);
                         }
                     }
                     @Override
