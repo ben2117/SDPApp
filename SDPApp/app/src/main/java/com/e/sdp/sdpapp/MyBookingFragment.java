@@ -25,6 +25,8 @@ import com.google.firebase.database.ValueEventListener;
 import org.w3c.dom.Text;
 
 import model.Booking;
+import model.BookingLine;
+import model.Session;
 import model.Workshop;
 
 /**
@@ -60,15 +62,56 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        //test code, remove or fix me
-        //final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference sessionRef = database.getReference("session");
+        //final DatabaseReference workshopRef = database.getReference("session");
         bookingRef = database.getReference("booking");
-        Query query = bookingRef.orderByChild("studentID").equalTo(studentId);
-        query.addChildEventListener(new ChildEventListener() {
+        Query bookingQuery = bookingRef.orderByChild("studentID").equalTo(studentId);
+
+        bookingQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Booking myBooking = dataSnapshot.getValue(Booking.class);
-                addBookingRow(myBooking, dataSnapshot.getKey());
+                final BookingLine bookingLine = dataSnapshot.getValue(BookingLine.class);
+                Log.d("book line session id", bookingLine.getSessionID());
+                Query sessionQuery = sessionRef.child(bookingLine.getSessionID());
+                sessionQuery.addListenerForSingleValueEvent(
+                        new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Session session = dataSnapshot.getValue(Session.class);
+                                //my booking is a session with possible information
+                                //from its classes
+                                Log.e("session", session.getTitle());
+                                Booking myBooking = new Booking("see details", session.getTitle(), "ses details", "see details", bookingLine.getAlarmType());
+                                addBookingRow(myBooking, dataSnapshot.getKey());
+
+                               /* Query workshopQuery = workshopRef.child(session.getWorkshopID());
+                                workshopQuery.addListenerForSingleValueEvent(
+                                        new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                Workshop workshop = dataSnapshot.getValue(Workshop.class);
+                                                Log.e("frag", workshop.getTitle());
+                                                //Booking myBooking = new Booking("na", workshop.getTitle(), "na", "na");
+                                                //addBookingRow(myBooking, dataSnapshot.getKey());
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        }
+                                );*/
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        }
+                );
+
+                //Booking myBooking = dataSnapshot.getValue(Booking.class);
+                //addBookingRow(myBooking, dataSnapshot.getKey());
             }
 
             @Override
@@ -101,6 +144,8 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
             }
         });
+
+
 
     }
 

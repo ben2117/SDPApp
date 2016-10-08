@@ -18,10 +18,13 @@ public class Booking {
     private String date;
     private String time;
 
-    private String covers;
-    private String targets;
-
-    public Booking() {}
+    public Booking(String room, String title, String date, String time, String alarmType) {
+        this.room = room;
+        this.title = title;
+        this.date = date;
+        this.time = time;
+        this.alarmType = alarmType;
+    }
 
 
     public String getClassID() {
@@ -86,21 +89,5 @@ public class Booking {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public String getCovers() {
-        return covers;
-    }
-
-    public void setCovers(String covers) {
-        this.covers = covers;
-    }
-
-    public String getTargets() {
-        return targets;
-    }
-
-    public void setTargets(String targets) {
-        this.targets = targets;
     }
 }

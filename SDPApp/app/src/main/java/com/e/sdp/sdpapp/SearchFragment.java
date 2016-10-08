@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import model.*;
-import model.Class;
+import model.Session;
+import model.Workshop;
 
 /**
  * Created by kisungtae on 15/09/2016.
@@ -44,7 +43,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
     private final static int TUTORPOSITION = 0;
     private final static int TOPICPOSITION = 1;
     private final static int DATEPOSITION = 2;
-    private final static int TIMEPOSITION = 3;
+    private final static int LOCATIONPOSITION = 3;
 
     //to save current selected spinner item
     //otherwise we should get selected item every time text changes in the textchange listener?
@@ -74,14 +73,12 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         searchBarEdTxtview.addTextChangedListener(this);
         searchBarEdTxtview.setOnFocusChangeListener(this);
 
-
         final ArrayList<Workshop> workshops = new ArrayList<>();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         final DatabaseReference workshospRef = database.getReference("workshop");
         final DatabaseReference sessionsRef = database.getReference("session");
-        final DatabaseReference classRef = database.getReference("class");
 
         workshospRef.addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -116,11 +113,6 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                     }
                 }
         );
-
-
-
-
-
 
         return searchView;
     }
@@ -167,7 +159,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                         setSpinnerState(selectedItemPosition, getString(R.string.dateSearchBarHint));
                         break;
                     }
-                    case TIMEPOSITION : {
+                    case LOCATIONPOSITION : {
                         setSpinnerState(selectedItemPosition, getString(R.string.timeSearchBarHint));
                         break;
                     }
@@ -220,6 +212,10 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
             //filter on topic
             else if(SPINNERSTATE == TOPICPOSITION) {
                 //some logic here
+            }
+
+            else if(SPINNERSTATE == LOCATIONPOSITION) {
+
             }
         }
     }
@@ -311,9 +307,6 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         if(hasFocus) {
             if(selectedItemPosition == DATEPOSITION) {
                 showDatePicker();
-            }
-            else if (selectedItemPosition == TIMEPOSITION) {
-                //show time dialog?
             }
         }
     }

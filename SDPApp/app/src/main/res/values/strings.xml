@@ -6,7 +6,7 @@
     <string name="score_hint">Enter your marks or scores here</string>
     <string name="defaultSearchBarHint">Enter your keywords</string>
     <string name="dateSearchBarHint">Touch to Select Date </string>
-    <string name="timeSearchBarHint">Touch to Select Time</string>
+    <string name="timeSearchBarHint">Enter Location</string>
     <string name="loginFailMsg">Login fail, Check your id and password</string>
 
     <string-array name="alarm_menus">
@@ -18,7 +18,7 @@
         <item>Tutor</item>
         <item>Topic</item>
         <item>Date</item>
-        <item>Time</item>
+        <item>Location</item>
     </string-array>
 
     <string-array name="academic_year">

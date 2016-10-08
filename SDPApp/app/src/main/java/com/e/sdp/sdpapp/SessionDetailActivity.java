@@ -84,9 +84,9 @@ public class SessionDetailActivity extends AppCompatActivity {
         setButtonText();
         setButtonListener();
 
-
+        /*
         //populate session info method needed
-        String bookingKey = getIntent().getStringExtra(SESSIONKEY);
+        String sessionKey = getIntent().getStringExtra(SESSIONKEY);
         Log.e("booking", bookingKey);
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference bookingRef = database.getReference("booking");
@@ -98,13 +98,6 @@ public class SessionDetailActivity extends AppCompatActivity {
                         Booking myBooking = dataSnapshot.getValue(Booking.class);
                         addTimetableRow(myBooking, "key");
                         Log.e("i was called", "here i am");
-
-                        sessionTitleTxtview.setText(myBooking.getTitle());
-                        sessionDateTxtview.setText(myBooking.getDate());
-                        sessionPlaceTxtview.setText(myBooking.getRoom());
-                        sessionCoverTxtview.setText(myBooking.getCovers());
-                        sessionTargetTxtview.setText(myBooking.getTargets());
-
                     }
 
                     @Override
@@ -113,7 +106,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                     }
                 }
         );
-
+        */
 
                         //test remove me
        /* Class aclass = new Class();

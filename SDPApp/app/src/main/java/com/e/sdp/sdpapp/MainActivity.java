@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
         //before server side validate(), start processDialog
         showProcessDialog();
+
+        //server side validation
         final DatabaseReference studentsRef = database.getReference("student");
         final DatabaseReference prePopStudentsRef = database.getReference("prePopStudent");
         final String studentIDInput = studentIdEdText.getText().toString();
@@ -76,11 +78,25 @@ public class MainActivity extends AppCompatActivity {
                         for(DataSnapshot child : dataSnapshot.getChildren()){
                             if(child.getKey().equals(studentIDInput)){
                                 Student student = child.getValue(Student.class);
+
+                                //for test remove me.
+                                progressDialog.dismiss();
+                                moveTo(MainPageActivity.class, studentIDInput);
+                                return;
+
+                                //why this is null fix me...
+                                //for test, remove me
+                               // Log.e("dddd", student.getPassword());
+                                /*
                                 if (student.getPassword().equals(passwordInput)) {
                                     progressDialog.dismiss();
                                     moveTo(MainPageActivity.class, studentIDInput);
+                                    return;
+                                } else {
+                                    displayLoginFailMsg();
+                                    return;
                                 }
-
+                                */
                             }
                         }
                         prePopStudentsRef.addListenerForSingleValueEvent(
@@ -94,9 +110,16 @@ public class MainActivity extends AppCompatActivity {
                                                 if (student.getPassword().equals(passwordInput)) {
                                                     progressDialog.dismiss();
                                                     moveTo(RegisterActivity.class, studentIDInput);
+                                                    return;
+                                                } else {
+                                                    displayLoginFailMsg();
+                                                    return;
                                                 }
                                             }
+
                                         }
+                                        //if id matches nothing, then display login fail
+                                        displayLoginFailMsg();
                                     }
 
                                     @Override
@@ -113,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
+    }
 
-
-
+    private void displayLoginFailMsg() {
+        progressDialog.dismiss();
+        Toast.makeText(MainActivity.this, "Check your id and passwords", Toast.LENGTH_SHORT).show();
     }
 
     private void showProcessDialog() {
@@ -153,24 +178,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         return valid;
-    }
-
-    private boolean serverSideValidate() {
-        boolean valid = true;
-
-        //server side validation firebaseAuth.signInWithEmailAndPassword(email, password)??
-        //task.isSucessful() --> valid = false;??
-        //try and catch ???
-        //need separate UTS student database ??
-
-        return valid;
-    }
-
-    //check registration of a student with HELPS
-    private boolean isRegistered() {
-        boolean registration = true;
-
-        return registration;
     }
 
     //move to another activity with slide animation

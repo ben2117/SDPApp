@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Workshop {
 
     //might be easier to have these in booking database??
- //   private String sessionID;
+    //   private String sessionID;
 
 
     private String title;

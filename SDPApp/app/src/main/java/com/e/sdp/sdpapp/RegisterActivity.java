@@ -41,15 +41,17 @@ import model.EducationalBackground;
 import model.Student;
 
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity{
+
+    private int counterForEduback = 1;
+
+    final static String INIEDBACKDATABASEKEY = "EB001";
 
     //save previous activity tag to determine if it comes directly
     //from login or main page activity
     private String preActivityTag;
 
     private String studentId;
-
-    private List<CheckBox> checkedCheckBoxes;
 
     //intent key for caller activity
     private static final String CALLER = "caller";
@@ -94,6 +96,11 @@ public class RegisterActivity extends AppCompatActivity {
         //set back and submit button listener
         setButtonListeners();
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference studentsRef = database.getReference("prePopStudent");
+        studentsRef.child("SS001").child("facultyID").setValue("F9087");
+
+
         //populate information about student
         populate();
     }
@@ -137,7 +144,7 @@ public class RegisterActivity extends AppCompatActivity {
         DatabaseReference studentsRef = database.getReference("prePopStudent");
 
         //for test, change "SS001" to studentID after fixing database
-        studentsRef.child("SS001").addListenerForSingleValueEvent(
+        studentsRef.child(studentId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -194,7 +201,7 @@ public class RegisterActivity extends AppCompatActivity {
                             preferedNameEd.setText(preferFirstName);
                         }
 
-                        String gender = student.getGender();
+                        String gender = student.getGender().toLowerCase();
                         if (!gender.isEmpty()) {
                           setRadioBtnCheck(gender, genderRadioGrp);
                         }
@@ -203,7 +210,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //academic year, first language, country of birth
                         //compulsory fields
                         bestContactEd.setText(student.getBestContactNo());
-                        setRadioBtnCheck(student.getStatus(), statusRadioGrp);
+                        setRadioBtnCheck(student.getStatus().toLowerCase(), statusRadioGrp);
                         academicYearSpnr.setSelection(getSelectedItemPosition(academicYearSpnr, String.valueOf(student.getYear())));
                         countrySpnr.setSelection(getSelectedItemPosition(countrySpnr, student.getCountryOfOrigin()));
                         firstLanguageSpnr.setSelection(getSelectedItemPosition(firstLanguageSpnr, student.getFirstLanguage()));
@@ -313,42 +320,38 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveEducationalBackgroundToDatabase() {
-        checkedCheckBoxes = new ArrayList<CheckBox>();
-        for(int i = 0; i < checkBoxLayout.getChildCount(); i++) {
-            View childView = checkBoxLayout.getChildAt(i);
-            if(childView instanceof CheckBox) {
-                CheckBox childCheckBox = (CheckBox) childView;
-                if(childCheckBox.isChecked()) {
 
-                    final EducationalBackground newEd = new EducationalBackground();
-                    newEd.setStudentID(studentId);
+        final ArrayList<EducationalBackground> educationalBackgrounds = getValidEdBackgounds();
+        if(educationalBackgrounds.size() != 0) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference educationalBackgroundRef = database.getReference("educationalBackground");
 
-                    String type = String.valueOf(childCheckBox.getText()).replace(" ", "").toLowerCase();
-                    newEd.setType(type);
+            Query query = educationalBackgroundRef.orderByChild("studentID").equalTo(studentId);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.hasChildren()) {
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            EducationalBackground ed = ds.getValue(EducationalBackground.class);
+                            int index = getIndexForSameTypeEduBackground(educationalBackgrounds, ed);
+                            if(index != -1) {
+                                educationalBackgroundRef.child(ds.getKey()).setValue(educationalBackgrounds.get(index));
+                                educationalBackgrounds.remove(index);
+                            }
+                        }
+                    }
 
-                    int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
-                    String tag = getResources().getResourceName(checkBoxId);
-                    EditText editTxt = (EditText) checkBoxLayout.findViewWithTag(tag);
-                    String mark = String.valueOf(editTxt.getText());
 
-                    if(!mark.isEmpty()) {
-                        newEd.setMark(mark);
-
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        final DatabaseReference edRef = database.getReference("educationalBackground");
-                        Query query = edRef.orderByChild("studentID").equalTo(studentId);
-                        query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    if(educationalBackgrounds.size() != 0) {
+                        counterForEduback = 1;
+                        educationalBackgroundRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    EducationalBackground ed = ds.getValue(EducationalBackground.class);
-                                    if(ed.getType().equals(newEd.getType())) {
-                                        ds.getRef().setValue(newEd);
-                                    } else {
-                                        DatabaseReference newEd = edRef.push();
-                                        newEd.setValue(newEd);
-                                        //edRef.push().setValue(newEd);
+                                    if(counterForEduback == dataSnapshot.getChildrenCount()) {
+                                        saveNewEdBackgrounds(educationalBackgrounds, ds.getKey());
                                     }
+                                    counterForEduback++;
                                 }
                             }
 
@@ -357,12 +360,75 @@ public class RegisterActivity extends AppCompatActivity {
 
                             }
                         });
-
                     }
                 }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+    }
+
+    private void saveNewEdBackgrounds(ArrayList<EducationalBackground> edBackgrounds, String lastKey) {
+        ArrayList<String> databaseKeys = new ArrayList<String>();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference educationalBackgroundRef = database.getReference("educationalBackground");
+
+        for(int i = 0; i < edBackgrounds.size(); i++) {
+            if(i == 0) {
+                String nextKey = FirebaseNodeEntryGenerator.generateKey(lastKey);
+                databaseKeys.add(nextKey);
+            } else {
+                String nextKeyy = FirebaseNodeEntryGenerator.generateKey(databaseKeys.get(i - 1));
+                databaseKeys.add(nextKeyy);
             }
         }
 
+        for(int i = 0; i < edBackgrounds.size(); i++) {
+            educationalBackgroundRef.child(databaseKeys.get(i)).setValue(edBackgrounds.get(i));
+        }
+
+    }
+
+    private int getIndexForSameTypeEduBackground(ArrayList<EducationalBackground> edBackgrounds, EducationalBackground ed) {
+        int index = -1;
+        for(int i = 0; i < edBackgrounds.size(); i++) {
+            if(edBackgrounds.get(i).getType().equals(ed.getType().toLowerCase())) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    private ArrayList<EducationalBackground> getValidEdBackgounds() {
+
+        ArrayList<EducationalBackground> educationalBackgrounds = new ArrayList<EducationalBackground>();
+
+        for(int i = 0; i < checkBoxLayout.getChildCount(); i++) {
+            View childView = checkBoxLayout.getChildAt(i);
+            if(childView instanceof CheckBox) {
+                CheckBox childCheckBox = (CheckBox) childView;
+                if(childCheckBox.isChecked()) {
+                    String type = String.valueOf(childCheckBox.getText()).replace(" ", "").toLowerCase();
+                    int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
+                    String tag = getResources().getResourceName(checkBoxId);
+                    EditText editTxt = (EditText) checkBoxLayout.findViewWithTag(tag);
+                    String mark = String.valueOf(editTxt.getText());
+
+                    EducationalBackground educationalBackground = new EducationalBackground();
+                    educationalBackground.setStudentID(studentId);
+                    educationalBackground.setType(type);
+                    educationalBackground.setMark(mark);
+                    educationalBackgrounds.add(educationalBackground);
+
+                }
+            }
+        }
+        return educationalBackgrounds;
     }
 
     private String getStringFromRdoBtn(RadioGroup rdoGrp) {
@@ -378,9 +444,12 @@ public class RegisterActivity extends AppCompatActivity {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    EducationalBackground ed = ds.getValue(EducationalBackground.class);
-                    setEducationalBackground(ed);
+                if(dataSnapshot.hasChildren()) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        EducationalBackground ed = ds.getValue(EducationalBackground.class);
+                        setEducationalBackground(ed);
+
+                    }
                 }
             }
 
@@ -392,14 +461,16 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setEducationalBackground(EducationalBackground ed) {
-        String type = ed.getType();
-        int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
-        String tag = getResources().getResourceName(checkBoxId);
-        CheckBox checkBox = (CheckBox) findViewById(checkBoxId);
-        checkBox.setChecked(true);
-        addEditTextBelowCheckBox(checkBox);
-        EditText edit = (EditText) checkBoxLayout.findViewWithTag(tag);
-        edit.setText(ed.getMark());
+        if(!ed.getMark().isEmpty()) {
+            String type = ed.getType().toLowerCase();
+            int checkBoxId = getResources().getIdentifier(type, "id", getPackageName());
+            String tag = getResources().getResourceName(checkBoxId);
+            CheckBox checkBox = (CheckBox) findViewById(checkBoxId);
+            checkBox.setChecked(true);
+            addEditTextBelowCheckBox(checkBox);
+            EditText edit = (EditText) checkBoxLayout.findViewWithTag(tag);
+            edit.setText(ed.getMark());
+        }
     }
 
     //set checkbox listener to show and hide corresponding edittext view
@@ -463,4 +534,6 @@ public class RegisterActivity extends AppCompatActivity {
             Toast.makeText(RegisterActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }
