@@ -92,7 +92,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         final DatabaseReference sessionRef = database.getReference("session");
         final DatabaseReference classRef = database.getReference("class");
 
-        Query classQuery = classRef.orderByChild("sessionID").equalTo(sessionKey);
+        final Query classQuery = classRef.orderByChild("sessionID").equalTo(sessionKey);
 
         Log.e("session key", sessionKey);
 
@@ -106,6 +106,23 @@ public class SessionDetailActivity extends AppCompatActivity {
                         sessionPlaceTxtview.setText("see classes");
                         sessionCoverTxtview.setText(session.getDescription());
                         sessionTargetTxtview.setText(session.getTargetGroup());
+
+                        classQuery.addListenerForSingleValueEvent(
+                                new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for(DataSnapshot child : dataSnapshot.getChildren()){
+                                            Class aClass = child.getValue(Class.class);
+                                            addTimetableRow(aClass, child.getKey());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                }
+                        );
                     }
 
                     @Override
@@ -149,7 +166,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         */
     }
 
-    private void addTimetableRow(Booking aClass, String classKey) {
+    private void addTimetableRow(Class aClass, String classKey) {
         View sessionTimetableRow = getSessionTimetableLayout(aClass);
         sessionTimetableRow.setTag(classKey);
 
@@ -158,7 +175,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         sessionTimetableLayout.addView(sessionTimetableRow);
     }
 
-    private View getSessionTimetableLayout(Booking aClass) {
+    private View getSessionTimetableLayout(Class aClass) {
         View sessionTimetableRow = layoutInflater.inflate(R.layout.session_timetable_row, sessionTimetableLayout, false);
         ImageView pencilImgView = (ImageView) sessionTimetableRow.findViewById(R.id.session_timetable_row_pencil_imgview);
 
@@ -188,7 +205,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         return passed;
     }
 
-    private void populateTimetableInfo(Booking aClass, View sessionTimetableRow) {
+    private void populateTimetableInfo(Class aClass, View sessionTimetableRow) {
         TextView txtView = null;
 
         Boolean passed = isPassed(aClass.getDate());
