@@ -156,7 +156,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         );
         */
 
-                        //test remove me
+        //test remove me
        /* Class aclass = new Class();
         aclass.setDate("21/21/2016");
         aclass.setRoom("CB01.05.10C");

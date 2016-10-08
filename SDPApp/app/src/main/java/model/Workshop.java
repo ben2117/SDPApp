@@ -39,4 +39,12 @@ public class Workshop {
     public void setType(String type) {
         this.type = type;
     }
+
+    public ArrayList<Session> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(ArrayList<Session> sessions) {
+        this.sessions = sessions;
+    }
 }

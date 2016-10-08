@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -23,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
@@ -56,6 +59,16 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
     private EditText searchBarEdTxtview;
     private Spinner searchBarSpnr;
     private ImageView searchBarCancel;
+    private ExpandableListView exListView;
+
+
+    //for test remove or leave me
+    private int counter = 0;
+    private long workshopDsSize;
+
+
+    //for test remove me or leave
+
 
     @Nullable
     @Override
@@ -84,6 +97,9 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        workshopDsSize = dataSnapshot.getChildrenCount();
+
+
                         for(DataSnapshot child : dataSnapshot.getChildren()) {
                             final Workshop workshop = child.getValue(Workshop.class);
                             final String workshopId = child.getKey();
@@ -91,30 +107,49 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                     new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
-                                            for(DataSnapshot child : dataSnapshot.getChildren()) {
+
+
+
+                                            for (DataSnapshot child : dataSnapshot.getChildren()) {
                                                 final Session session = child.getValue(Session.class);
-                                                if(session.getWorkshopID().equals(workshopId)){
+                                                if (session.getWorkshopID().equals(workshopId)) {
                                                     final String sessionId = child.getKey();
                                                     session.setSeesionId(sessionId);
                                                     workshop.addSession(session);
                                                 }
                                             }
+
+
                                             workshops.add(workshop);
+                                            counter++;
+                                            if(workshopDsSize == counter) {
+                                                setWorkshopList(workshops);
+                                                counter = 0;
+                                            }
+                                            //Log.e("workshop list size", workshops.size());
                                         }
+
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {
                                         }
                                     }
                             );
+
                         }
+
                     }
+
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 }
         );
-
         return searchView;
+    }
+
+    private void setWorkshopList(ArrayList<Workshop> _workshops) {
+        SearchExpndAdapter searchExpndAdapter = new SearchExpndAdapter(getActivity(), _workshops);
+        exListView.setAdapter(searchExpndAdapter);
     }
 
     private void setSearchBarCancelListener() {
@@ -130,6 +165,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         searchBarEdTxtview = (EditText) searchView.findViewById(R.id.search_bar_edtxtview);
         searchBarSpnr = (Spinner) searchView.findViewById(R.id.search_bar_spinner);
         searchBarCancel = (ImageView) searchView.findViewById(R.id.search_bar_cancel_imgview);
+        exListView = (ExpandableListView) searchView.findViewById(R.id.search_listview);
     }
 
     //set spinner with adapter

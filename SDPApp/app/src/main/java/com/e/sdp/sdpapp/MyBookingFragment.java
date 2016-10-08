@@ -81,7 +81,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
                                 //my booking is a session with possible information
                                 //from its classes
                                 Log.e("session", session.getTitle());
-                                Booking myBooking = new Booking("see details", session.getTitle(), "see details", "see details", bookingLine.getAlarmType());
+                                Booking myBooking = new Booking("see details", session.getTitle(), "ses details", "see details", bookingLine.getAlarmType());
                                 addBookingRow(myBooking, dataSnapshot.getKey());
 
                                /* Query workshopQuery = workshopRef.child(session.getWorkshopID());
