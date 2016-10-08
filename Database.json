@@ -19,7 +19,7 @@
 			"name" : "Ben",
 			"preferredFirstName": "Ben",
 			"courseID" : "C123456",
-			"facultyID" : "F9876543",
+			"facultyID" : "F9087",
 			"homePhone" : "987654",
 			"mobile" : "123456",
 			"bestContactNo": "123456",
@@ -36,7 +36,7 @@
 			"name" : "Lem",
 			"preferredFirstName": "Lem",
 			"courseID" : "C123456",
-			"facultyID" : "F9876543",
+			"facultyID" : "F9087",
 			"homePhone" : "987654",
 			"mobile" : "123456",
 			"bestContactNo": "123456",
@@ -45,7 +45,8 @@
 			"year" : 1,
 			"status" : "Permanent",
 			"firstLanguage" : "English",
-			"countryOfOrigin" : "Australia"
+			"countryOfOrigin" : "Australia",
+			"password" : "password"
 		}
 
 
@@ -54,53 +55,43 @@
 	"educationalBackground" : {
 		"EB001" : {
 			"studentID" : "1234",
-			"type" : "HSC",
+			"type" : "hsc",
 			"mark" : "yes"
 		},
 		"EB002" : {
 			"studentID" : "4567",
-			"type" : "TAFE",
+			"type" : "tafe",
 			"mark" : "good"
 		},
 		"EB003" : {
 			"studentID" : "4567",
-			"type" : "HSC",
+			"type" : "hsc",
 			"mark" : "also good"
 		}
 
 	},
 
 	"booking" : {
-		"B000002" : {
-			"classID" : "C0001",
+		"B01" : {
+			"sessionID" : "SE001",
 			"studentID" : "1234",
-			"attended" : false,
-			"alarmType" : "none",
-			"title" : "Writing Skills",
-			"room": "CB01.05.10B",
-			"date": "2/9/2016",
-			"time": "12:00 - 13:30",
-			"covers" : "stuff about writing",
-			"tagets" : "all students"
-		},
-		"B000003" : {
-			"classID" : "C0001",
-			"studentID" : "1234",
-			"attended" : false,
-			"alarmType" : "none",
-			"title" : "Another Booking",
-			"room": "CB01.05.10B",
-			"date": "2/9/2016",
-			"time": "12:00 - 13:30",
-			"covers" : "stuff about bookings",
-			"tagets" : "all students"
+			"alarmType" : "none"
 		}
 
 	},
 
+	"attendance" : {
+		"A01" : {
+			"classID" : "C0001",
+			"studentID" : "1234"
+		}
+	},
+
+
+
 	"waiting" : {
 		"W00001" : {
-			"classID" : "C0001",
+			"sessionID" : "C0001",
 			"studentID" : "4567",
 			"queuePosition" : 1
 		}
@@ -128,7 +119,10 @@
 			"restrictedCourseID" : null,
 			"title": "Writing a Report",
 			"targetGroup": "all students",
-			"description": "Report types, Reports vs essays ,Report structure and components"
+			"description": "Report types, Reports vs essays ,Report structure and components",
+			"tutor" : "bob",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0
 		},
 		"SE002" : {
 			"workshopID": "w001",
@@ -136,7 +130,10 @@
 			"restrictedCourseID" : null,
 			"title": "Critical Thinking & Writing repeat",
 			"targetGroup": "all students",
-			"description": "Report types, Reports vs essays ,Report structure and components"
+			"description": "Report types, Reports vs essays ,Report structure and components",
+			"tutor" : "mike",
+			"maxAttendance" : 20,
+			"currentAttendance" : 0
 		}
 	},
 
@@ -145,21 +142,30 @@
 			"sessionID" : "SE001",
 			"room": "CB01.05.10B",
 			"date": "2/9/2016",
-			"time": "12:00 - 13:30",
-			"maxAttendance" : 20,
-			"currentAttendance" : 0
+			"time": "12:00 - 13:30"
 		}
 	},
 
 	"prePopStudent" : {
-		"SS001" : {
+		"089" : {
 			"name" : "Jim",
 			"courseID" : "C123456",
-			"facultyID" : "F9876543",
+			"facultyID" : "F9087",
 			"email" : "jim@jim.com",
 			"homePhone" : "987654",
 			"mobile" : "123456",
-			"dob" : "01/01/2001"
+			"dob" : "01/01/2001",
+			"password" : "password"
+		},
+		"1234" : {
+			"name" : "Ben",
+			"courseID" : "C123456",
+			"facultyID" : "F9087",
+			"homePhone" : "987654",
+			"email" : "ben@jim.com",
+			"mobile" : "123456",
+			"dob" : "01/01/2001",
+			"password" : "password"
 		}
 	},
 
