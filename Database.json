@@ -122,7 +122,8 @@
 			"description": "Report types, Reports vs essays ,Report structure and components",
 			"tutor" : "bob",
 			"maxAttendance" : 20,
-			"currentAttendance" : 0
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
 		},
 		"SE002" : {
 			"workshopID": "w001",
@@ -133,7 +134,8 @@
 			"description": "Report types, Reports vs essays ,Report structure and components",
 			"tutor" : "mike",
 			"maxAttendance" : 20,
-			"currentAttendance" : 0
+			"currentAttendance" : 0,
+			"date" : "1/1/10 - 1/2/10"
 		}
 	},
 

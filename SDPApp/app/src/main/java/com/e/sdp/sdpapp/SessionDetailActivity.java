@@ -16,6 +16,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import model.Booking;
 import model.Class;
+import model.Session;
 
 public class SessionDetailActivity extends AppCompatActivity {
 
@@ -83,6 +85,35 @@ public class SessionDetailActivity extends AppCompatActivity {
         setMethodMap();
         setButtonText();
         setButtonListener();
+
+
+        String sessionKey = getIntent().getStringExtra(SESSIONKEY);
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference sessionRef = database.getReference("session");
+        final DatabaseReference classRef = database.getReference("class");
+
+        Query classQuery = classRef.orderByChild("sessionID").equalTo(sessionKey);
+
+        Log.e("session key", sessionKey);
+
+        sessionRef.child(sessionKey).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Session session = dataSnapshot.getValue(Session.class);
+                        sessionTitleTxtview.setText(session.getTitle());
+                        sessionDateTxtview.setText(session.getDate());
+                        sessionPlaceTxtview.setText("see classes");
+                        sessionCoverTxtview.setText(session.getDescription());
+                        sessionTargetTxtview.setText(session.getTargetGroup());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
 
         /*
         //populate session info method needed

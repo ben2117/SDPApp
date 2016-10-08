@@ -14,6 +14,10 @@ public class Session {
     private String targetGroup;
     private String description;
     private String seesionId;
+    private int maxAttendance;
+    private int currentAttendance;
+    private String date;
+    private String tutor;
 
 
     public Session() {
@@ -74,5 +78,29 @@ public class Session {
 
     public void setSeesionId(String seesionId) {
         this.seesionId = seesionId;
+    }
+
+    public int getMaxAttendance() {
+        return maxAttendance;
+    }
+
+    public void setMaxAttendance(int maxAttendance) {
+        this.maxAttendance = maxAttendance;
+    }
+
+    public int getCurrentAttendance() {
+        return currentAttendance;
+    }
+
+    public void setCurrentAttendance(int currentAttendance) {
+        this.currentAttendance = currentAttendance;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
