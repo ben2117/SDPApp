@@ -173,10 +173,16 @@ public class MainActivity extends AppCompatActivity {
             passwordEdText.setError(null);
         }
 
-        //-----start test code, remove me ---------------
+        //Added a .contains checker for non valid cases  invalid chars is all the characters that are bad, add any in the string no need for commas  ~ Tex
+        String invalidChars = " ";
+        for(int i = 0; i < password.length();i++) {
+            if (invalidChars.contains(Character.toString(password.charAt(i)))) {
+                passwordEdText.setError("Enter a valid password");
+                valid = false;
+            }
+        }
+        //remove code below test purposes only!!!
         valid = true;
-
-
         return valid;
     }
 
