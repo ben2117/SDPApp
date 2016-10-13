@@ -250,6 +250,7 @@
                     android:id="@+id/preferedname_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="textNoSuggestions"
                     android:maxLines="1" />
 
                 <TextView
@@ -264,7 +265,7 @@
                     android:id="@+id/bestcontactnumber_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:inputType="number|textNoSuggestions"
                     android:maxLines="1" />
 
                 <TextView

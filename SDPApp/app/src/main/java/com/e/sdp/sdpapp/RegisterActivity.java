@@ -3,8 +3,10 @@ package com.e.sdp.sdpapp;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.media.audiofx.LoudnessEnhancer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,20 +45,6 @@ import model.Student;
 
 public class RegisterActivity extends AppCompatActivity{
 
-    private int counterForEduback = 1;
-
-    final static String INIEDBACKDATABASEKEY = "EB001";
-
-    //save previous activity tag to determine if it comes directly
-    //from login or main page activity
-    private String preActivityTag;
-
-    private String studentId;
-
-    //intent key for caller activity
-    private static final String CALLER = "caller";
-    private static final String STUDENTID = "studentid";
-
     //bind pre-populated info views
     @Bind(R.id.stname_textview) TextView stnameTextview;
     @Bind(R.id.faculty_textview) TextView facultyTextview;
@@ -81,6 +69,18 @@ public class RegisterActivity extends AppCompatActivity{
     @Bind(R.id.register_submit_btn) Button submitBtn;
     @Bind(R.id.english_score_checkboxes_layout) LinearLayout checkBoxLayout;
 
+    //intent key for caller activity
+    private static final String CALLER = "caller";
+    private static final String STUDENTID = "studentid";
+
+    //save previous activity tag to determine if it comes directly
+    //from login or main page activity
+    private String preActivityTag;
+    private String studentId;
+
+
+    private int counterForEduback = 1;
+
 
     //need code to manage english score check boxes
 
@@ -96,11 +96,6 @@ public class RegisterActivity extends AppCompatActivity{
         //set back and submit button listener
         setButtonListeners();
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference studentsRef = database.getReference("prePopStudent");
-        studentsRef.child("SS001").child("facultyID").setValue("F9087");
-
-
         //populate information about student
         populate();
     }
@@ -109,7 +104,6 @@ public class RegisterActivity extends AppCompatActivity{
         ButterKnife.bind(this);
         preActivityTag = getIntent().getStringExtra(CALLER);
         studentId = getIntent().getStringExtra(STUDENTID);
-        Log.e("preActivityTag", studentId);
     }
 
     private void setButtonListeners() {
@@ -131,19 +125,23 @@ public class RegisterActivity extends AppCompatActivity{
     //pre tag == login, then only prepopulate
     //pre tag == mainpage, then both prepopulate and populateRegisteredStinfo
     private void populate() {
-        prepopulate();
-        if(preActivityTag.equals(Tag.MAINPAGEACTIVITY.toString())) {
-            populateRegisteredStudentInfo();
-            populateEducationBackground();
+        try {
+            prepopulate();
+            if(preActivityTag.equals(Tag.MAINPAGEACTIVITY.toString())) {
+                populateRegisteredStudentInfo();
+                populateEducationBackground();
+            }
+
+        } catch (Exception e) {
+            Toast.makeText(RegisterActivity.this, "Try again", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     //prepopulate the UTS student information
     private void prepopulate() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference studentsRef = database.getReference("prePopStudent");
-
-        //for test, change "SS001" to studentID after fixing database
         studentsRef.child(studentId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
@@ -186,7 +184,6 @@ public class RegisterActivity extends AppCompatActivity{
     //populate registered student information
     private void populateRegisteredStudentInfo() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        Log.e("hi", " i am pop reg");
         DatabaseReference studentsRef = database.getReference("student");
         studentsRef.child(studentId).addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -194,16 +191,27 @@ public class RegisterActivity extends AppCompatActivity{
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Student student = dataSnapshot.getValue(Student.class);
 
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            Log.e("key", ds.getKey());
+                        }
+
                         //preferred first name and gender
                         //non-compulsory fields
                         String preferFirstName = student.getPreferredFirstName();
-                        if(!preferFirstName.isEmpty()) {
+                        if(preferFirstName.isEmpty()) {
+                            preferedNameEd.setText("");
+                        } else {
                             preferedNameEd.setText(preferFirstName);
                         }
 
                         String gender = student.getGender().toLowerCase();
-                        if (!gender.isEmpty()) {
-                          setRadioBtnCheck(gender, genderRadioGrp);
+                        if (gender.isEmpty()) {
+                            if(genderRadioGrp.getCheckedRadioButtonId() != -1) {
+                                RadioButton radioButton = (RadioButton) genderRadioGrp.findViewById(genderRadioGrp.getCheckedRadioButtonId());
+                                radioButton.setChecked(false);
+                            }
+                        } else {
+                            setRadioBtnCheck(gender, genderRadioGrp);
                         }
 
                         //best contact, degree, status,
@@ -214,9 +222,7 @@ public class RegisterActivity extends AppCompatActivity{
                         academicYearSpnr.setSelection(getSelectedItemPosition(academicYearSpnr, String.valueOf(student.getYear())));
                         countrySpnr.setSelection(getSelectedItemPosition(countrySpnr, student.getCountryOfOrigin()));
                         firstLanguageSpnr.setSelection(getSelectedItemPosition(firstLanguageSpnr, student.getFirstLanguage()));
-
-                        //For test, commnet in after degree to the database
-                        //setRadioBtnCheck(student.getDegree());
+                        //setRadioBtnCheck(student.getDegree(), degreeRadioGrp);
                     }
 
                     @Override
@@ -250,7 +256,6 @@ public class RegisterActivity extends AppCompatActivity{
             return;
         }
 
-        //save the data to the database
         saveToDatabase();
 
         //either to directly move to main page or to display Toast message based on pre tag?
@@ -260,32 +265,20 @@ public class RegisterActivity extends AppCompatActivity{
     private boolean validate() {
         boolean valid = true;
 
+        //getCheckedRadioButtonId returns -1 if nothing is checked
         if(bestContactEd.getText().toString().isEmpty()) {
             valid = false;
-        }
-
-        //getCheckedRadioButtonId returns -1 if nothing is checked
-        if(degreeRadioGrp.getCheckedRadioButtonId() == -1) {
+        } else if(degreeRadioGrp.getCheckedRadioButtonId() == -1) {
             valid = false;
-        } else {
-        }
-
-        if(statusRadioGrp.getCheckedRadioButtonId() == -1) {
+        } else if(statusRadioGrp.getCheckedRadioButtonId() == -1) {
             valid = false;
-        }
-
-        if(academicYearSpnr.getSelectedItem().toString().isEmpty()) {
+        } else if(academicYearSpnr.getSelectedItem().toString().isEmpty()) {
+            valid = false;
+        } else if(firstLanguageSpnr.getSelectedItem().toString().isEmpty()) {
+            valid = false;
+        } else if(countrySpnr.getSelectedItem().toString().isEmpty()) {
             valid = false;
         }
-
-        if(firstLanguageSpnr.getSelectedItem().toString().isEmpty()) {
-            valid = false;
-        }
-
-        if(countrySpnr.getSelectedItem().toString().isEmpty()) {
-            valid = false;
-        }
-
         return valid;
     }
 
@@ -305,18 +298,28 @@ public class RegisterActivity extends AppCompatActivity{
         student.setBestContactNo(bestContact);
         student.setGender(gender);
         student.setStatus(status);
-        student.setYear(Integer.valueOf(academicYear));
+        student.setYear(Long.valueOf(academicYear));
         student.setFirstLanguage(firstLanguage);
         student.setCountryOfOrigin(country);
 
         //For test, comment in after fixing database
         //student.setDegree(degree);
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference studentsRef = database.getReference("student");
-        studentsRef.child(studentId).setValue(student);
+        try {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference studentsRef = database.getReference("student");
+            studentsRef.child(studentId).setValue(student);
+            saveEducationalBackgroundToDatabase();
+        } catch (Exception e) {
+            Toast.makeText(RegisterActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+        }
 
-        saveEducationalBackgroundToDatabase();
+    }
+
+    private String getStringFromRdoBtn(RadioGroup rdoGrp) {
+        int checkRdoBtnId = rdoGrp.getCheckedRadioButtonId();
+        RadioButton rdoBtn = (RadioButton) rdoGrp.findViewById(checkRdoBtnId);
+        return rdoBtn.getText().toString().toLowerCase();
     }
 
     private void saveEducationalBackgroundToDatabase() {
@@ -343,16 +346,16 @@ public class RegisterActivity extends AppCompatActivity{
 
 
                     if(educationalBackgrounds.size() != 0) {
-                        counterForEduback = 1;
                         educationalBackgroundRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                String lastKey = "";
                                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                                    if(counterForEduback == dataSnapshot.getChildrenCount()) {
-                                        saveNewEdBackgrounds(educationalBackgrounds, ds.getKey());
+                                    if(ds.exists()) {
+                                        lastKey = ds.getKey();
                                     }
-                                    counterForEduback++;
                                 }
+                                saveNewEdBackgrounds(educationalBackgrounds, lastKey);
                             }
 
                             @Override
@@ -424,17 +427,10 @@ public class RegisterActivity extends AppCompatActivity{
                     educationalBackground.setType(type);
                     educationalBackground.setMark(mark);
                     educationalBackgrounds.add(educationalBackground);
-
                 }
             }
         }
         return educationalBackgrounds;
-    }
-
-    private String getStringFromRdoBtn(RadioGroup rdoGrp) {
-        int checkRdoBtnId = rdoGrp.getCheckedRadioButtonId();
-        RadioButton rdoBtn = (RadioButton) rdoGrp.findViewById(checkRdoBtnId);
-        return rdoBtn.getText().toString().toLowerCase();
     }
 
     private void populateEducationBackground() {
@@ -448,7 +444,6 @@ public class RegisterActivity extends AppCompatActivity{
                     for(DataSnapshot ds : dataSnapshot.getChildren()) {
                         EducationalBackground ed = ds.getValue(EducationalBackground.class);
                         setEducationalBackground(ed);
-
                     }
                 }
             }
@@ -491,7 +486,7 @@ public class RegisterActivity extends AppCompatActivity{
         EditText ed = new EditText(RegisterActivity.this);
         ed.setMaxLines(1);
         ed.setTag(checkBox.getResources().getResourceName(checkBox.getId()));
-        Log.e("dd", checkBox.getResources().getResourceName(checkBox.getId()));
+        ed.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         checkBoxLayout.addView(ed, position + 1);
     }
 
@@ -529,6 +524,7 @@ public class RegisterActivity extends AppCompatActivity{
     //if previous activity is main page, then just display update success message
     private void moveToPageOnPreTag() {
         if(preActivityTag.equals(Tag.MAINACTIVITY.toString())) {
+            Toast.makeText(RegisterActivity.this, "Successfully registered", Toast.LENGTH_SHORT).show();
             moveTo(MainPageActivity.class);
         } else {
             Toast.makeText(RegisterActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();

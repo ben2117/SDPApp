@@ -8,7 +8,15 @@ public class BookingLine {
     private String sessionID;
     private String studentID;
     private String alarmType;
+    private String bookingID;
 
+    public BookingLine() {};
+
+    public BookingLine(String _sessionID, String _studentID, String _alarmType) {
+        sessionID = _sessionID;
+        studentID = _studentID;
+        alarmType = _alarmType;
+    };
 
     public String getSessionID() {
         return sessionID;
@@ -32,5 +40,13 @@ public class BookingLine {
 
     public void setAlarmType(String alarmType) {
         this.alarmType = alarmType;
+    }
+
+    public String getBookingID() {
+        return bookingID;
+    }
+
+    public void setBookingID(String bookingID) {
+        this.bookingID = bookingID;
     }
 }

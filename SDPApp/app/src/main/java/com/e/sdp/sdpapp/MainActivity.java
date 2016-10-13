@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import model.Booking;
+import model.PastBooking;
 import model.Session;
 import model.Student;
 
@@ -24,19 +26,17 @@ import com.google.firebase.database.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ProgressDialog progressDialog;
-
-    //intent key for caller activity
-    private static final String CALLER = "caller";
-    private static final String STUDENTID = "studentid";
-
-
-    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
-
     //bind email and password edit text and login btn
     @Bind(R.id.studentID_edtext) EditText studentIdEdText;
     @Bind(R.id.password_edtext) EditText passwordEdText;
     @Bind(R.id.login_btn) Button loginBtn;
+
+    //keys for intent extra string
+    private static final String CALLER = "caller";
+    private static final String STUDENTID = "studentid";
+
+    private ProgressDialog progressDialog;
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +46,27 @@ public class MainActivity extends AppCompatActivity {
         //butterknife binds this view to use @Bind()
         ButterKnife.bind(this);
 
-        //set login button listener
+        //set login btn listener
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            try {
                 login();
+            } catch (Exception e) {
+                if(NetworkChecker.checkNetwork(MainActivity.this)) {
+                    Toast.makeText(MainActivity.this, "check you network", Toast.LENGTH_SHORT).show();
+                }
+                Toast.makeText(MainActivity.this,"try again", Toast.LENGTH_SHORT).show();
+                if(progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+            }
             }
         });
     }
 
     private void login() {
+
         //if client side validation fails, then stop
         if(!clientSideValidate()) {
             return;
@@ -65,77 +76,56 @@ public class MainActivity extends AppCompatActivity {
         showProcessDialog();
 
         //server side validation
-        final DatabaseReference studentsRef = database.getReference("student");
+        serverSideValidate();
+    }
+
+    private void serverSideValidate() {
+        //server side validate
         final DatabaseReference prePopStudentsRef = database.getReference("prePopStudent");
         final String studentIDInput = studentIdEdText.getText().toString();
         final String passwordInput = passwordEdText.getText().toString();
 
-        studentsRef.addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        //look through students in our database first
-                        for(DataSnapshot child : dataSnapshot.getChildren()){
-                            if(child.getKey().equals(studentIDInput)){
-                                Student student = child.getValue(Student.class);
-
-                                //for test remove me.
-                                progressDialog.dismiss();
-                                moveTo(MainPageActivity.class, studentIDInput);
-                                return;
-
-                                //why this is null fix me...
-                                //for test, remove me
-                               // Log.e("dddd", student.getPassword());
-                                /*
-                                if (student.getPassword().equals(passwordInput)) {
-                                    progressDialog.dismiss();
-                                    moveTo(MainPageActivity.class, studentIDInput);
-                                    return;
-                                } else {
-                                    displayLoginFailMsg();
-                                    return;
-                                }
-                                */
-                            }
-                        }
-                        prePopStudentsRef.addListenerForSingleValueEvent(
-                                new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        //if no students are found, look through pre pop students
-                                        for(DataSnapshot child : dataSnapshot.getChildren()) {
-                                            if(child.getKey().equals(studentIDInput)){
-                                                Student student = child.getValue(Student.class);
-                                                if (student.getPassword().equals(passwordInput)) {
-                                                    progressDialog.dismiss();
-                                                    moveTo(RegisterActivity.class, studentIDInput);
-                                                    return;
-                                                } else {
-                                                    displayLoginFailMsg();
-                                                    return;
-                                                }
-                                            }
-
-                                        }
-                                        //if id matches nothing, then display login fail
-                                        displayLoginFailMsg();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                }
-                        );
+        prePopStudentsRef.child(studentIDInput).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    Student student = dataSnapshot.getValue(Student.class);
+                    if(student.getPassword().equals(passwordInput)) {
+                        validateRegistration(dataSnapshot.getKey());
+                    } else {
+                        displayLoginFailMsg();
                     }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                } else {
+                    displayLoginFailMsg();
                 }
-        );
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void validateRegistration(final String studentID) {
+        final DatabaseReference studentsRef = database.getReference("student");
+        studentsRef.child(studentID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    progressDialog.dismiss();
+                    moveTo(MainPageActivity.class, studentID);
+                } else {
+                    progressDialog.dismiss();
+                    moveTo(RegisterActivity.class, studentID);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void displayLoginFailMsg() {
@@ -157,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         String studentID = studentIdEdText.getText().toString();
         String password = passwordEdText.getText().toString();
 
-        //
+
         if(studentID.length() > 10 || studentID.length() < 8) {
             studentIdEdText.setError("Enter a valid student ID");
             valid = false;
@@ -173,16 +163,10 @@ public class MainActivity extends AppCompatActivity {
             passwordEdText.setError(null);
         }
 
-        //Added a .contains checker for non valid cases  invalid chars is all the characters that are bad, add any in the string no need for commas  ~ Tex
-        String invalidChars = " ";
-        for(int i = 0; i < password.length();i++) {
-            if (invalidChars.contains(Character.toString(password.charAt(i)))) {
-                passwordEdText.setError("Enter a valid password");
-                valid = false;
-            }
-        }
-        //remove code below test purposes only!!!
+        //-----start test code, remove me ---------------
         valid = true;
+
+
         return valid;
     }
 
@@ -226,5 +210,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
 }
 

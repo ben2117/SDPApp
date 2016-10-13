@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorGray"
+    android:background="@color/faqAnswerBackgroundColor"
     android:orientation="vertical"
     >
 
@@ -31,7 +31,7 @@
         <LinearLayout
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_weight="0.7"
+            android:layout_weight="0.9"
             android:orientation="vertical">
 
             <LinearLayout
@@ -91,29 +91,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="0.2"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorRed"
-                android:id="@+id/expand_list_session_row_placetxtview"
-                android:text="30"/>
-
-            <TextView
-                android:paddingLeft="3dp"
-                android:layout_width="wrap_content"
-                android:textColor="@color/colorRed"
-                android:layout_height="wrap_content"
-                android:text="places"/>
-
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dip"
@@ -134,6 +111,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dip"
-        android:background="@color/colorDarkGray" />
+        android:alpha="1"
+        android:background="@color/colorExpandListRowDevider" />
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.e.sdp.sdpapp;
 
+import android.app.AlarmManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,12 +22,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import model.Booking;
 import model.BookingLine;
 import model.Session;
-import model.Workshop;
 
 /**
  * Created by kisungtae on 15/09/2016.
@@ -48,90 +49,79 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     //intent keys for caller and session database key
     private static final String CALLER = "caller";
     private static final String SESSIONKEY = "sessionKey";
+    private static final String BOOKINGKEY = "bookingKey";
     private static final String STUDENTID = "studentid";
 
     //test code remove or fix me
-    DatabaseReference bookingRef;
+    private DatabaseReference bookingRef;
+    private FirebaseDatabase database;
+
+    //test code remove or leave me
+    private Map<String, BookingLine> bookingKeySessionMap = new HashMap<>();
+
+    //alarm manager for reminder
+    private Reminder reminder;
+
+    private String studentId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final String studentId;
+        setup();
+
+        try {
+            setBookingDatabaseListener();
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "try again", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void setup() {
         studentId = getActivity().getIntent().getStringExtra(STUDENTID);
-        Log.e("fragment", studentId);
-
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-        final DatabaseReference sessionRef = database.getReference("session");
-        //final DatabaseReference workshopRef = database.getReference("session");
+        reminder = new Reminder(getActivity());
+        database = FirebaseDatabase.getInstance();
         bookingRef = database.getReference("booking");
-        Query bookingQuery = bookingRef.orderByChild("studentID").equalTo(studentId);
+    }
 
+    private void setBookingDatabaseListener() {
+        Query bookingQuery = bookingRef.orderByChild("studentID").equalTo(studentId);
         bookingQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                final BookingLine bookingLine = dataSnapshot.getValue(BookingLine.class);
-                Log.d("book line session id", bookingLine.getSessionID());
-                Query sessionQuery = sessionRef.child(bookingLine.getSessionID());
-                sessionQuery.addListenerForSingleValueEvent(
-                        new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Session session = dataSnapshot.getValue(Session.class);
-                                //my booking is a session with possible information
-                                //from its classes
-                                Log.e("session", session.getTitle());
-                                Booking myBooking = new Booking("see details", session.getTitle(), "ses details", "see details", bookingLine.getAlarmType());
-                                addBookingRow(myBooking, dataSnapshot.getKey());
+                BookingLine bookingLine = dataSnapshot.getValue(BookingLine.class);
+                bookingLine.setBookingID(dataSnapshot.getKey());
+                bookingKeySessionMap.put(bookingLine.getSessionID(), bookingLine);
+                addBookingRow(bookingLine.getSessionID());
 
-                               /* Query workshopQuery = workshopRef.child(session.getWorkshopID());
-                                workshopQuery.addListenerForSingleValueEvent(
-                                        new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                Workshop workshop = dataSnapshot.getValue(Workshop.class);
-                                                Log.e("frag", workshop.getTitle());
-                                                //Booking myBooking = new Booking("na", workshop.getTitle(), "na", "na");
-                                                //addBookingRow(myBooking, dataSnapshot.getKey());
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        }
-                                );*/
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        }
-                );
-
-                //Booking myBooking = dataSnapshot.getValue(Booking.class);
-                //addBookingRow(myBooking, dataSnapshot.getKey());
+                reminder.addReminderItem(dataSnapshot.getKey(), bookingLine.getSessionID());
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                //separate listener only for alarm type???
-                String key = dataSnapshot.getKey();
+                BookingLine bookingLine = dataSnapshot.getValue(BookingLine.class);
+                String sessionId = bookingLine.getSessionID();
+                BookingLine tag = bookingKeySessionMap.get(sessionId);
+
                 String alarmType = (String) dataSnapshot.child("alarmType").getValue();
                 Toast.makeText(getActivity(), alarmType, Toast.LENGTH_SHORT).show();
-                View view = getView().findViewWithTag(key);
+
+                View view = getView().findViewWithTag(tag);
                 ImageView img = (ImageView) view.findViewById(R.id.booking_row_alarm_imageview);
                 setAlarmImgView(img, alarmType);
-
-
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String tag = dataSnapshot.getKey();
-                removeBookingRow(tag);
+                //bookingKeySessionMAp remove logic here
+                BookingLine bookingLine = dataSnapshot.getValue(BookingLine.class);
+                String sessionId = bookingLine.getSessionID();
+                BookingLine removingRowTag = bookingKeySessionMap.get(sessionId);
+                removeBookingRow(removingRowTag);
+                bookingKeySessionMap.remove(sessionId);
 
+                //test remove or leave me
+                reminder.removeReminderItem(dataSnapshot.getKey());
             }
 
             @Override
@@ -144,62 +134,62 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
             }
         });
-
-
-
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View myBookingView = inflater.inflate(R.layout.my_booking_fragment_view, container, false);
-        layoutInflater = inflater;
-        bindView(myBookingView);
-        return myBookingView;
-    }
 
-    private void bindView(View view) {
-        nextBookedClassLayout = (LinearLayout) view.findViewById(R.id.next_booked_class_linearlayout);
-        myBookingLayout = (LinearLayout) view.findViewById(R.id.myBooking_linearlayout);
-        oneToOneConsultationLayout = (LinearLayout) view.findViewById(R.id.one_to_one_linearlayout);
-    }
 
     //take booking object and database key like "B000002" to set tag for each booking view????
-    private void addBookingRow(Booking booking, String key) {
-        View myBookingRow = layoutInflater.inflate(R.layout.my_booking_row, myBookingLayout, false);
-        final ImageView imageView = (ImageView) myBookingRow.findViewById(R.id.booking_row_alarm_imageview);
-        String alarmSet = booking.getAlarmType();
+    private void addBookingRow(String sessionID) {
 
-        //for test, remove or fix me
-        //go to session detailed page
-        myBookingRow.setOnClickListener(new View.OnClickListener() {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference sessionRef = database.getReference("session");
+        final Query sessionQuery = sessionRef.child(sessionID);
+
+        sessionQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), SessionDetailActivity.class);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final View myBookingRow = layoutInflater.inflate(R.layout.my_booking_row, myBookingLayout, false);
+                String sessionID = dataSnapshot.getKey();
 
-                //put session key to use for getting timetable??
-                intent.putExtra(SESSIONKEY, (String)v.getTag());
-                moveTo(intent);
+                BookingLine bookingLine = bookingKeySessionMap.get(sessionID);
+                myBookingRow.setTag(bookingLine);
+
+                Session session = dataSnapshot.getValue(Session.class);
+
+                //needs to fix???
+                Booking myBooking = new Booking("see details", session.getTitle(), "ses details", "see details", bookingLine.getAlarmType());
+
+                populateSessionInfo(myBooking, myBookingRow);
+                final ImageView imageView = (ImageView) myBookingRow.findViewById(R.id.booking_row_alarm_imageview);
+                setAlarmImgView(imageView, bookingLine.getAlarmType());
+                setAlarmImgViewListener(imageView);
+
+                myBookingRow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), SessionDetailActivity.class);
+                        BookingLine bookingLineTag = (BookingLine) v.getTag();
+                        intent.putExtra(SESSIONKEY, bookingLineTag.getSessionID());
+                        intent.putExtra(BOOKINGKEY, bookingLineTag.getBookingID());
+                        moveTo(intent);
+                    }
+                });
+
+                myBookingLayout.addView(myBookingRow);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
 
-
-        //set tag with the key for later reference
-        myBookingRow.setTag(key);
-
-        populateSessionInfo(booking, myBookingRow);
-        setAlarmImgView(imageView, alarmSet);
-        setAlarmImgViewListener(imageView);
-
-        myBookingLayout.addView(myBookingRow);
     }
 
-    private void removeBookingRow(String key) {
+    private void removeBookingRow(BookingLine key) {
         View view = getView().findViewWithTag(key);
         myBookingLayout.removeView(view);
     }
-
-
 
     //here populate the session info to view
     private void populateSessionInfo(Booking booking, View myBookingRow) {
@@ -217,6 +207,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
         if(alarmType.equals("none")) {
             imgView.setImageResource(R.drawable.inactive_alarm);
             imgView.setTag(false);
+
         } else {
             imgView.setImageResource(R.drawable.active_alarm);
             imgView.setTag(true);
@@ -233,17 +224,38 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
                 //alarmImgView.getRootView() goes all the way up......
                 //need to fix
                 LinearLayout parent = (LinearLayout) alarmImgView.getParent().getParent().getParent().getParent();
-                String tag = (String)parent.getTag();
+
+                BookingLine bookingLine = (BookingLine) parent.getTag();
+                String bookingID = bookingLine.getBookingID();
 
                 if(isAlarmSet) {
                     //update alarm type to none on database
-                    bookingRef.child(tag).child("alarmType").setValue("none");
+                    bookingRef.child(bookingID).child("alarmType").setValue("none");
+                    reminder.updateReminderItem(bookingID, false, false, false);
 
                 } else {
                     //show alarm dialog
-                    showAlarmDialog(tag);}
+                    showAlarmDialog(bookingID);
+                    }
+
             }
         });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View myBookingView = inflater.inflate(R.layout.my_booking_fragment_view, container, false);
+        layoutInflater = inflater;
+        bindView(myBookingView);
+
+        return myBookingView;
+    }
+
+    private void bindView(View view) {
+        nextBookedClassLayout = (LinearLayout) view.findViewById(R.id.next_booked_class_linearlayout);
+        myBookingLayout = (LinearLayout) view.findViewById(R.id.myBooking_linearlayout);
+        oneToOneConsultationLayout = (LinearLayout) view.findViewById(R.id.one_to_one_linearlayout);
     }
 
     private void showAlarmDialog(String keyTag) {
@@ -254,13 +266,19 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
     //it is fired when the ok button in alarm popup is pressed
     @Override
-    public void onAlarmOkClick(String alarmType) {
+    public void onAlarmOkClick(String alarmType, Boolean sevenFlag, Boolean oneFlag, Boolean tenFlag) {
         String tag = alarmPopupDialog.getTag();
         bookingRef.child(tag).child("alarmType").setValue(alarmType);
+        reminder.updateReminderItem(alarmPopupDialog.getTag(),
+                sevenFlag,
+                oneFlag,
+                tenFlag);
+
     }
 
     private void moveTo(Intent intent){
         intent.putExtra(CALLER, Tag.MYBOOKINGFRAGMENT.toString());
+        intent.putExtra(STUDENTID, studentId);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }

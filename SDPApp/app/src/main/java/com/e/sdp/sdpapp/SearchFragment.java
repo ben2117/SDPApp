@@ -2,9 +2,11 @@ package com.e.sdp.sdpapp;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.LongSparseArray;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import model.Class;
 import model.Session;
 import model.Workshop;
 
@@ -49,7 +53,6 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
     private final static int LOCATIONPOSITION = 3;
 
     //to save current selected spinner item
-    //otherwise we should get selected item every time text changes in the textchange listener?
     private static int SPINNERSTATE = 0;
 
     //variables for datepicker
@@ -60,11 +63,20 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
     private Spinner searchBarSpnr;
     private ImageView searchBarCancel;
     private ExpandableListView exListView;
+    private ListView searchFilterListView;
+    private ArrayList<Session> sessions;
+    private ArrayList<Session> filteredSessions;
+    private SearchFilterListViewAdapter searchFilterListViewAdapter;
 
+
+    private static final String SESSIONKEY = "sessionKey";
+    private static final String CALLER = "caller";
+    private static final String STUDENTID = "studentid";
 
     //for test remove or leave me
     private int counter = 0;
     private long workshopDsSize;
+    private String studentId;
 
 
     //for test remove me or leave
@@ -86,10 +98,14 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         searchBarEdTxtview.addTextChangedListener(this);
         searchBarEdTxtview.setOnFocusChangeListener(this);
 
+        studentId = getActivity().getIntent().getStringExtra(STUDENTID);
+
+
         final ArrayList<Workshop> workshops = new ArrayList<>();
+        sessions = new ArrayList<>();
+
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-
         final DatabaseReference workshospRef = database.getReference("workshop");
         final DatabaseReference sessionsRef = database.getReference("session");
 
@@ -98,8 +114,6 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         workshopDsSize = dataSnapshot.getChildrenCount();
-
-
                         for(DataSnapshot child : dataSnapshot.getChildren()) {
                             final Workshop workshop = child.getValue(Workshop.class);
                             final String workshopId = child.getKey();
@@ -107,15 +121,17 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                     new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-
                                             for (DataSnapshot child : dataSnapshot.getChildren()) {
                                                 final Session session = child.getValue(Session.class);
+
+                                                //for search filer list view
+
+
                                                 if (session.getWorkshopID().equals(workshopId)) {
                                                     final String sessionId = child.getKey();
                                                     session.setSeesionId(sessionId);
                                                     workshop.addSession(session);
+                                                    sessions.add(session);
                                                 }
                                             }
 
@@ -123,7 +139,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                             workshops.add(workshop);
                                             counter++;
                                             if(workshopDsSize == counter) {
-                                                setWorkshopList(workshops);
+                                                setWorkshopList(workshops, sessions);
                                                 counter = 0;
                                             }
                                             //Log.e("workshop list size", workshops.size());
@@ -147,9 +163,32 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         return searchView;
     }
 
-    private void setWorkshopList(ArrayList<Workshop> _workshops) {
+    private void setWorkshopList(ArrayList<Workshop> _workshops, ArrayList<Session> _sessions) {
         SearchExpndAdapter searchExpndAdapter = new SearchExpndAdapter(getActivity(), _workshops);
         exListView.setAdapter(searchExpndAdapter);
+        exListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                moveTo(SessionDetailActivity.class, v.getTag().toString());
+                return false;
+            }
+        });
+
+
+        //searchil filter listview
+        //filteredSessions = new ArrayList<Session>(_sessions);
+
+        filteredSessions = new ArrayList<>();
+        searchFilterListViewAdapter = new SearchFilterListViewAdapter(getActivity(), filteredSessions);
+        searchFilterListView.setAdapter(searchFilterListViewAdapter);
+        searchFilterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //here moveTo session detail activity
+
+            }
+        });
     }
 
     private void setSearchBarCancelListener() {
@@ -166,6 +205,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         searchBarSpnr = (Spinner) searchView.findViewById(R.id.search_bar_spinner);
         searchBarCancel = (ImageView) searchView.findViewById(R.id.search_bar_cancel_imgview);
         exListView = (ExpandableListView) searchView.findViewById(R.id.search_listview);
+        searchFilterListView = (ListView) searchView.findViewById(R.id.search_fragment_searchfilter_listview);
     }
 
     //set spinner with adapter
@@ -233,27 +273,50 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         //reset the search filter if text is ""
         if(searchBarEdTxtview.getText().toString().isEmpty()) {
 
-            //logic to reset the filtered results here?
-
             //hide cancel btn in the search bar
             searchBarCancel.setVisibility(View.INVISIBLE);
+            searchFilterListView.setVisibility(View.INVISIBLE);
+            exListView.setVisibility(View.VISIBLE);
         } else {
+            exListView.setVisibility(View.INVISIBLE);
+            searchFilterListView.setVisibility(View.VISIBLE);
             searchBarCancel.setVisibility(View.VISIBLE);
+            filterOn();
 
-            //filter on tutor name
-            if(SPINNERSTATE == TUTORPOSITION) {
-                //some logic here
-            }
+        }
+    }
 
-            //filter on topic
-            else if(SPINNERSTATE == TOPICPOSITION) {
-                //some logic here
-            }
+    private void filterOn() {
+        String searchKeyword = searchBarEdTxtview.getText().toString().toLowerCase();
 
-            else if(SPINNERSTATE == LOCATIONPOSITION) {
+        if(filteredSessions.size() != 0) {
+            filteredSessions.clear();
+        }
 
+        //filter on tutor name
+        if(SPINNERSTATE == TUTORPOSITION) {
+            for(Session session : sessions) {
+                if(session.getTutor().replace(" ","").toLowerCase().contains(searchKeyword)) {
+                    filteredSessions.add(session);
+                }
             }
         }
+
+        //filter on topic
+        else if(SPINNERSTATE == TOPICPOSITION) {
+            for(Session session : sessions) {
+                if(session.getTitle().replace(" ", "").toLowerCase().contains(searchKeyword)) {
+                    filteredSessions.add(session);
+                }
+            }
+        }
+
+        //filter on location
+        else if(SPINNERSTATE == LOCATIONPOSITION) {
+        }
+
+        searchFilterListViewAdapter.notifyDataSetChanged();
+
     }
 
     private void showDatePicker() {
@@ -347,4 +410,12 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         }
     }
 
+    private void moveTo(java.lang.Class toClass, String sessionKey){
+        Intent intent = new Intent(getActivity(), toClass);
+        intent.putExtra(STUDENTID, studentId);
+        intent.putExtra(CALLER, Tag.SEARCHFRAGMENT.toString());
+        intent.putExtra(SESSIONKEY, sessionKey);
+        startActivity(intent);
+        getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
 }

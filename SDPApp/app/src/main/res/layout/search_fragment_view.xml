@@ -12,6 +12,7 @@
         android:padding="7dp"
         android:baselineAligned="false"
         android:weightSum="1">
+
         <RelativeLayout
             android:layout_width="0dip"
             android:layout_height="wrap_content"
@@ -23,6 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
+                android:inputType="textNoSuggestions"
                 android:id="@+id/search_bar_edtxtview"
                 android:hint="@string/defaultSearchBarHint"
                 android:background="@android:color/transparent"
@@ -57,11 +59,27 @@
         >
     </View>
 
-    <ExpandableListView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_listview"
-        android:groupIndicator="@null"
-        />
+        android:layout_height="wrap_content">
+
+        <ExpandableListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/search_listview"
+            android:groupIndicator="@null"
+            android:visibility="visible"
+            />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/search_fragment_searchfilter_listview"
+            android:visibility="invisible"
+            android:background="@color/colorDefaultBackground"
+            >
+        </ListView>
+
+    </FrameLayout>
 
 </LinearLayout>

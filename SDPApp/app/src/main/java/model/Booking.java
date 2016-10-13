@@ -10,6 +10,7 @@ public class Booking {
 
 
     private String classID;
+    private String sessionID;
     private String studentID;
     private Boolean attended;
     private String alarmType;
@@ -17,6 +18,9 @@ public class Booking {
     private String room;
     private String date;
     private String time;
+
+
+    public Booking() {}
 
     public Booking(String room, String title, String date, String time, String alarmType) {
         this.room = room;
@@ -89,5 +93,13 @@ public class Booking {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getSessionID() {
+        return sessionID;
+    }
+
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
     }
 }

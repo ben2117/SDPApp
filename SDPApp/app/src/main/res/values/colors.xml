@@ -16,4 +16,5 @@
     <color name="transparent">#00000000</color>
     <color name="faqAnswerBackgroundColor">#f1f1f1</color>
     <color name="inactiveText">#cccccc</color>
+    <color name="colorExpandListRowDevider">#efefef</color>
 </resources>

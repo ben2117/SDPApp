@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 
 
@@ -22,13 +23,17 @@ public class AlarmPopupDialog extends android.support.v4.app.DialogFragment impl
 
     //interface to connect between this and mybooking fragment
     public interface OnAlarmOkClickListener {
-        public void onAlarmOkClick(String alarmType);
+        public void onAlarmOkClick(String alarmType, Boolean sevendayFlag, Boolean onedayFlag, Boolean tenminuFlag);
     }
 
 
     private Spinner alarmTypeSpnr;
+    private CheckBox sevenDayCheckBox;
+    private CheckBox oneDayCheckBox;
+    private CheckBox tenMinutesCheckBox;
+
     private static final int POPUPWIDTH = 300;
-    private static final int POPUPHEIGHT = 250;
+    private static final int POPUPHEIGHT = 350;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,10 @@ public class AlarmPopupDialog extends android.support.v4.app.DialogFragment impl
 
         //set alarm type spinner
         alarmTypeSpnr = (Spinner) view.findViewById(R.id.alarm_popup_spinner);
+        sevenDayCheckBox = (CheckBox) view.findViewById(R.id.alarm_popup_seven_day_checkbox);
+        oneDayCheckBox = (CheckBox) view.findViewById(R.id.alarm_popup_one_day_checkbox);
+        tenMinutesCheckBox = (CheckBox) view.findViewById(R.id.alarm_popup_ten_minutes_checkbox);
+
 
         setButtons(view);
 
@@ -84,7 +93,10 @@ public class AlarmPopupDialog extends android.support.v4.app.DialogFragment impl
     public void onClick(View v) {
         if(v.getId() == R.id.alarm_popup_okbtn) {
             //callback to my booking fragment
-            callback.onAlarmOkClick(alarmTypeSpnr.getSelectedItem().toString());
+            callback.onAlarmOkClick(alarmTypeSpnr.getSelectedItem().toString(),
+                    sevenDayCheckBox.isChecked(),
+                    oneDayCheckBox.isChecked(),
+                    tenMinutesCheckBox.isChecked());
         }
         //close popup window
         dismiss();

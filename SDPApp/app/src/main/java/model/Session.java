@@ -80,6 +80,10 @@ public class Session {
         this.seesionId = seesionId;
     }
 
+    public String getSessionId() {
+        return this.seesionId;
+    }
+
     public int getMaxAttendance() {
         return maxAttendance;
     }
@@ -102,5 +106,13 @@ public class Session {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(String tutor) {
+        this.tutor = tutor;
     }
 }

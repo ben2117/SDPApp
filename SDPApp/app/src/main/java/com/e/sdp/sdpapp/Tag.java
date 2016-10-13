@@ -8,7 +8,8 @@ public enum Tag {
     MAINPAGEACTIVITY("MainPageActivity"),
     MYBOOKINGFRAGMENT("MyBookingFragment"),
     SEARCHFRAGMENT("SearchFragment"),
-    WAITLISTFRAGMENT("WaitlistFragment");
+    WAITLISTFRAGMENT("WaitlistFragment"),
+    BLANKTAG("BlankFragment");
 
     private String mTag;
 

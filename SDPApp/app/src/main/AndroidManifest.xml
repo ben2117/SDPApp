@@ -3,7 +3,13 @@
     package="com.e.sdp.sdpapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+    
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -24,7 +30,14 @@
             android:theme="@style/RegisterTheme" />
         <activity android:name=".MainPageActivity" />
         <activity android:name=".FaqActivity" />
-        <activity android:name=".SessionDetailActivity"></activity>
+        <activity android:name=".SessionDetailActivity" />
+        <activity android:name=".TextEditor"
+            android:theme="@style/RegisterTheme"></activity>
+
+
+        <receiver android:name=".NotificationReciver">
+
+        </receiver>
     </application>
 
 </manifest>

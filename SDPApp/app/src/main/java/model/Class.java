@@ -1,5 +1,9 @@
 package model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by kisungtae on 25/09/2016.
  */
@@ -39,5 +43,31 @@ public class Class {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public Date getDateObject() {
+
+        String dateString = this.date;
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        Date dateObject;
+        try {
+            dateObject = df.parse(dateString);
+            return dateObject;
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean bookingIsPast(){
+        Date todaysDate = new Date();
+        Date date = this.getDateObject();
+        return date.after(todaysDate);
+    }
+
+    public boolean bookingIsFuture(){
+        Date todaysDate = new Date();
+        Date date = this.getDateObject();
+        return date.before(todaysDate);
     }
 }

@@ -37,7 +37,7 @@ public class MainPageActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private android.support.v7.widget.Toolbar toolbar;
-
+    private static boolean logined = true;
     private String studentId;
 
     @Override
@@ -108,10 +108,7 @@ public class MainPageActivity extends AppCompatActivity {
 
     //logout process and then move to login page
     private void logout() {
-        //logout logic ??
-        //student = null?
-
-        //move to login page
+        logined = false;
         moveTo(MainActivity.class);
     }
 
@@ -154,6 +151,10 @@ public class MainPageActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    public static boolean isLogined() {
+        return logined;
     }
 
 

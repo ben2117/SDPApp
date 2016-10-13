@@ -8,17 +8,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="0.15"
+        android:layout_weight="0.2"
         android:background="@color/colorRed"
         android:gravity="center"
-        android:text="Alarm Setting"
+        android:text="Verification Code Check"
         android:textColor="@color/colorWhite"
         android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="0.65"
+        android:layout_weight="0.5"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="30dp"
@@ -27,67 +27,24 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="25dp"
+            android:layout_marginBottom="30dp"
             android:gravity="center_horizontal"
-            android:text="Select an option for alarm"
+            android:text="Enter verification code"
             android:textColor="@color/colorBlack"
             android:textSize="17sp" />
 
-        <Spinner
-            android:id="@+id/alarm_popup_spinner"
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/alarm_menus" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorBlack"
-            android:textSize="17sp"
-            android:text="Set reminder before :"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="25dp"
-            android:layout_marginTop="15dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="1">
-
-            <CheckBox
-                android:id="@+id/alarm_popup_seven_day_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="7day"
-                android:textSize="13sp" />
-
-
-            <CheckBox
-                android:id="@+id/alarm_popup_one_day_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1day"
-                android:textSize="13sp" />
-
-
-            <CheckBox
-                android:id="@+id/alarm_popup_ten_minutes_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10minutes"
-                android:textSize="13sp" />
-
-
-        </LinearLayout>
-
-
+            android:maxLines="1"
+            android:inputType="textNoSuggestions"
+            android:id="@+id/verification_code_popup_edtxtview"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="0.2"
+        android:layout_weight="0.3"
         android:gravity="bottom"
         android:orientation="vertical">
 
@@ -100,7 +57,7 @@
             android:weightSum="1">
 
             <Button
-                android:id="@+id/alarm_popup_cancelbtn"
+                android:id="@+id/verification_code_popup_cancel_btn"
                 style="@style/alarm_popup_btn_style"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
@@ -111,7 +68,7 @@
 
 
             <Button
-                android:id="@+id/alarm_popup_okbtn"
+                android:id="@+id/verification_code_popup_ok_btn"
                 style="@style/alarm_popup_btn_style"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
