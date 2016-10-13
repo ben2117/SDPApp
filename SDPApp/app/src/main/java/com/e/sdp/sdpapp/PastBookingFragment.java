@@ -61,7 +61,7 @@ public class PastBookingFragment extends Fragment {
 
 
         pastBookingListView.setAdapter(pastBookingListAdapter);
-
+        loadBookings("1234");
 
         return pastBookingView;
     }

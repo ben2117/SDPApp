@@ -222,7 +222,7 @@ public class RegisterActivity extends AppCompatActivity{
                         academicYearSpnr.setSelection(getSelectedItemPosition(academicYearSpnr, String.valueOf(student.getYear())));
                         countrySpnr.setSelection(getSelectedItemPosition(countrySpnr, student.getCountryOfOrigin()));
                         firstLanguageSpnr.setSelection(getSelectedItemPosition(firstLanguageSpnr, student.getFirstLanguage()));
-                        //setRadioBtnCheck(student.getDegree(), degreeRadioGrp);
+                        setRadioBtnCheck(student.getDegree(), degreeRadioGrp);
                     }
 
                     @Override
@@ -289,7 +289,7 @@ public class RegisterActivity extends AppCompatActivity{
         String academicYear = academicYearSpnr.getSelectedItem().toString();
         String firstLanguage = firstLanguageSpnr.getSelectedItem().toString();
         String country = countrySpnr.getSelectedItem().toString();
-        //String degree = getStringFromRdoBtn(degreeRadioGrp);
+        String degree = getStringFromRdoBtn(degreeRadioGrp);
         String status = getStringFromRdoBtn(statusRadioGrp);
         String gender = getStringFromRdoBtn(genderRadioGrp);
 
@@ -301,9 +301,7 @@ public class RegisterActivity extends AppCompatActivity{
         student.setYear(Long.valueOf(academicYear));
         student.setFirstLanguage(firstLanguage);
         student.setCountryOfOrigin(country);
-
-        //For test, comment in after fixing database
-        //student.setDegree(degree);
+        student.setDegree(degree);
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
