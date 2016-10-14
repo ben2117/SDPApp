@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -288,6 +289,39 @@ public class SessionDetailActivity extends AppCompatActivity {
     }
 
 
+    //
+    //decrements all of the waiting lists positions so they can be checked
+    //in the waiting list fragment to book a session
+    //
+    private void decrementForWaitingList(String sessionId){
+        final DatabaseReference waitingRef = database.getReference("waiting");
+        Log.e("i was here", "i was here");
+        Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo(sessionId);
+        //Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo("SE001");
+        waitingQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+               // Log.e("data snapshot key", dataSnapshot.getKey());
+                for(DataSnapshot child : dataSnapshot.getChildren()){
+                    // Log.e("childs key", child.getKey());
+                    WaitingSession waitingSession = child.getValue(WaitingSession.class);
+                    long newPosition = waitingSession.getQueuePosition() - 1;
+                    waitingRef.child(child.getKey()).child("queuePosition").setValue(newPosition);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+    }
+
     //set method calls based on tag
     private void setMethodMap() {
         methodMap = new HashMap<String, Command>();
@@ -308,6 +342,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                         Session session = dataSnapshot.getValue(Session.class);
                         long availablePlace = session.getCurrentAttendance() - 1;
                         sessionRef.child(dataSnapshot.getKey()).child("currentAttendance").setValue(availablePlace);
+                        decrementForWaitingList(sessionKey);
                         finishWithAni();
                     }
 

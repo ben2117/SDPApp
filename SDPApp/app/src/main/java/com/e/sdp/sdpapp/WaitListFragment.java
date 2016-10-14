@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.BookingLine;
+import model.Session;
 import model.WaitingSession;
 
 /**
@@ -38,10 +42,15 @@ public class WaitListFragment extends Fragment {
     private WaitlistListviewAdapter waitlistListviewAdapter;
     private ListView waitListListview;
 
+    private FirebaseDatabase database;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        database = FirebaseDatabase.getInstance();
         studentId = getActivity().getIntent().getStringExtra(STUDENTID);
+        Log.e("waiting fragment", studentId);
+        addAvailableBookings(studentId);
     }
 
     @Nullable
@@ -112,5 +121,81 @@ public class WaitListFragment extends Fragment {
         intent.putExtra(STUDENTID, studentId);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    //searches the waiting list to see if this student can move from the waiting list to
+    //the booking
+    private void addAvailableBookings(String studentId){
+        final DatabaseReference waitingRef = database.getReference("waiting");
+        Query waitingQuery = waitingRef.orderByChild("studentID").equalTo(studentId);
+        waitingQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot child : dataSnapshot.getChildren()) {
+                    WaitingSession ws = child.getValue(WaitingSession.class);
+                    if(ws.getQueuePosition() < 1 ){
+                        waitingRef.child(child.getKey()).removeValue();
+                        saveBookingToDatabase(ws.getSessionID(), ws.getStudentID());
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void saveBookingToDatabase(final String sessionId, final String studentId){
+        final DatabaseReference bookingRef = database.getReference("booking");
+
+        bookingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String lastKey = "";
+                if(dataSnapshot.hasChildren()) {
+                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if(ds.exists()) {
+                            lastKey = ds.getKey();
+                        }
+                    }
+                }
+
+                String newBookingKey = FirebaseNodeEntryGenerator.generateKey(lastKey);
+
+                BookingLine newBookingLine = new BookingLine(sessionId, studentId, "none");
+                bookingRef.child(newBookingKey).setValue(newBookingLine);
+
+                addAttendanceToSession(sessionId);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void addAttendanceToSession(String sessionId){
+        final DatabaseReference sessionRef = database.getReference("session");
+        sessionRef.child(sessionId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    Session session = dataSnapshot.getValue(Session.class);
+                    long availablePlace = session.getCurrentAttendance() + 1;
+                    sessionRef.child(dataSnapshot.getKey()).child("currentAttendance").setValue(availablePlace);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

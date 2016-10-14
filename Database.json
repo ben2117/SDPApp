@@ -86,8 +86,14 @@
 		"W00001" : {
 			"sessionName" : "Writing a Report",
 			"sessionID" : "SE001",
-			"studentID" : "4567",
+			"studentID" : "12345678",
 			"queuePosition" : 1
+		},
+		"W00002" : {
+			"sessionName" : "Writing a Report",
+			"sessionID" : "SE001",
+			"studentID" : "09876543",
+			"queuePosition" : 2
 		}
 	},
 
@@ -192,13 +198,13 @@
 		"C0001" : {
 			"sessionID" : "SE001",
 			"room": "CB01.05.10B",
-			"date": "2/9/2016",
+			"date": "02/09/2016",
 			"time": "12:00 - 13:30"
 		},
 		"C0002" : {
 			"sessionID" : "SE001",
 			"room": "CB01.08.10B",
-			"date": "3/9/2016",
+			"date": "03/09/2016",
 			"time": "12:00 - 13:30"
 		}
 	},
