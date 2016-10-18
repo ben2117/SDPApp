@@ -113,12 +113,11 @@ public class SearchExpndAdapter extends BaseExpandableListAdapter{
         titleTxtview.setText(session.getTitle());
         dateTxtview.setText(session.getDate());
         tutorTxtview.setText(session.getTutor());
-
+        locationTxtview.setText(session.getLocation());
 
         convertView.setTag(session.getSessionId());
 
-        //for test comment in after location added to the database
-        //locationTxtview.setText(session.getL);
+
 
     }
 

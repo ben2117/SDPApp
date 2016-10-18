@@ -28,6 +28,7 @@ import java.util.Map;
 
 import model.Booking;
 import model.BookingLine;
+import model.Class;
 import model.Session;
 
 /**
@@ -51,6 +52,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     private static final String SESSIONKEY = "sessionKey";
     private static final String BOOKINGKEY = "bookingKey";
     private static final String STUDENTID = "studentid";
+    private static final String CLASSKEY = "classKey";
 
     //test code remove or fix me
     private DatabaseReference bookingRef;
@@ -93,8 +95,8 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
                 bookingLine.setBookingID(dataSnapshot.getKey());
                 bookingKeySessionMap.put(bookingLine.getSessionID(), bookingLine);
                 addBookingRow(bookingLine.getSessionID());
-
                 reminder.addReminderItem(dataSnapshot.getKey(), bookingLine.getSessionID());
+                setNextClass(bookingLine.getSessionID());
             }
 
             @Override
@@ -122,6 +124,16 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
 
                 //test remove or leave me
                 reminder.removeReminderItem(dataSnapshot.getKey());
+                View view = nextBookedClassLayout.getChildAt(0);
+                if(view != null) {
+                    Class currentNextClass = (Class) view.getTag();
+                    if(currentNextClass.getSessionID().equals(sessionId)) {
+                        nextBookedClassLayout.removeView(view);
+                    }
+                }
+
+                Toast.makeText(getActivity(), "Booking Cancled", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -137,6 +149,93 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
     }
 
 
+
+    private void setNextClass(String sessionKey) {
+        Log.e("finNextClass", "i am called");
+        DatabaseReference classRef = database.getReference("class");
+        Query query = classRef.orderByChild("sessionID").equalTo(sessionKey);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Class nextClass;
+                for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Class currentClass = ds.getValue(Class.class);
+                    if(!currentClass.bookingIsPast()) {
+                        nextClass = currentClass;
+                        currentClass.setClassID(ds.getKey());
+                        addNextClassRow(nextClass);
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void addNextClassRow(final Class nextClass) {
+        DatabaseReference sessionRef = database.getReference("session");
+        sessionRef.child(nextClass.getSessionID()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean isBefore = isCurrentNextClassBefore(nextClass);
+                Session session = dataSnapshot.getValue(Session.class);
+                if(!isBefore) {
+                    LayoutInflater layoutInflater1 = LayoutInflater.from(getContext());
+                    final LinearLayout nextBookedRow = (LinearLayout) layoutInflater1.inflate(R.layout.next_class_row, null);
+                    nextBookedRow.setTag(nextClass);
+                    populateNextClassInfo(nextBookedRow, nextClass, session.getTitle());
+                    nextBookedClassLayout.addView(nextBookedRow);
+                    nextBookedRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Log.e("i am working", "i am touched");
+                            Class aClass = (Class) view.getTag();
+                            String classKey = aClass.getClassID();
+                            showVerficationPopup(classKey);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void populateNextClassInfo(LinearLayout nextBookedRow, Class nextClass, String sessionName) {
+        TextView classDateTxtview = (TextView) nextBookedRow.findViewById(R.id.next_booked_class_class_date_txtview);
+        TextView classTimeTxtview = (TextView) nextBookedRow.findViewById(R.id.next_booked_class_class_location_txtview);
+        TextView classLocationTxtview = (TextView) nextBookedRow.findViewById(R.id.next_booked_class_class_location_txtview);
+        TextView classTitleTxtview = (TextView) nextBookedRow.findViewById(R.id.next_booked_class_session_title_txtview);
+
+        classDateTxtview.setText(nextClass.getDate());
+        classLocationTxtview.setText(nextClass.getRoom());
+        classTimeTxtview.setText(nextClass.getTime());
+        classTitleTxtview.setText(sessionName);
+    }
+
+    private boolean isCurrentNextClassBefore(Class nextClass) {
+        boolean isBefore;
+        View currentNextClassLayout = nextBookedClassLayout.getChildAt(0);
+        if(currentNextClassLayout == null) {
+            isBefore = false;
+        } else {
+            Class currentNextClass = (Class) currentNextClassLayout.getTag();
+            if(currentNextClass.getDateObject().after(nextClass.getDateObject())) {
+                isBefore = false;
+                nextBookedClassLayout.removeView(currentNextClassLayout);
+            } else {
+                isBefore = true;
+            }
+        }
+        return isBefore;
+    }
 
     //take booking object and database key like "B000002" to set tag for each booking view????
     private void addBookingRow(String sessionID) {
@@ -157,7 +256,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
                 Session session = dataSnapshot.getValue(Session.class);
 
                 //needs to fix???
-                Booking myBooking = new Booking("see details", session.getTitle(), "ses details", "see details", bookingLine.getAlarmType());
+                Booking myBooking = new Booking(session.getLocation(), session.getTitle(), session.getDate(), "see details", bookingLine.getAlarmType());
 
                 populateSessionInfo(myBooking, myBookingRow);
                 final ImageView imageView = (ImageView) myBookingRow.findViewById(R.id.booking_row_alarm_imageview);
@@ -200,7 +299,7 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
         TextView date = (TextView) myBookingRow.findViewById(R.id.booking_row_session_date);
         date.setText(booking.getDate());
         TextView time = (TextView) myBookingRow.findViewById(R.id.booking_row_session_time);
-        time.setText(booking.getDate());
+        time.setText("see details");
     }
 
     private void setAlarmImgView(ImageView imgView, String alarmType) {
@@ -281,5 +380,18 @@ public class MyBookingFragment extends Fragment implements AlarmPopupDialog.OnAl
         intent.putExtra(STUDENTID, studentId);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
+    private void showVerficationPopup(String classId) {
+        //test remove after add verification field to
+        //class database table
+        String tempVerificationCode = "giveup";
+
+        VerificationCodePopup verificationCodePopup = new VerificationCodePopup();
+        Bundle bundle = new Bundle();
+        bundle.putString(CLASSKEY, classId);
+        verificationCodePopup.setArguments(bundle);
+        verificationCodePopup.show(getFragmentManager(), tempVerificationCode);
+
     }
 }

@@ -13,26 +13,40 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import model.Attendance;
 
 /**
  * Created by kisungtae on 09/10/2016.
  */
 public class VerificationCodePopup extends DialogFragment implements View.OnClickListener {
 
+
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference attendanceRef = database.getReference("attendance");
+
     private static final int POPUPWIDTH = 300;
     private static final int POPUPHEIGHT = 250;
 
-    private static final String BOOKINGKEY = "bookingKey";
     private static final String CLASSKEY = "classKey";
+    private static final String STUDENTID = "studentid";
 
     private EditText verificationCodeEdText;
-    private String bookingId;
+
     private String classId;
+    private String studentID;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bookingId = getArguments().getString(BOOKINGKEY);
+        studentID = getArguments().getString(STUDENTID);
         classId = getArguments().getString(CLASSKEY);
     }
 
@@ -75,8 +89,40 @@ public class VerificationCodePopup extends DialogFragment implements View.OnClic
             boolean valid = checkInputAgainstVerifiCode();
             if(valid) {
 
-                //go to edittext
-                moveTo(TextEditor.class);
+                attendanceRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String lastKey = "";
+                        boolean valid = true;
+                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                            Attendance oldAttendance = ds.getValue(Attendance.class);
+                            if(oldAttendance.getClassID().equals(classId)) {
+                                valid = false;
+                            }
+                            if(ds.exists()) {
+                                lastKey = ds.getKey();
+                            }
+                        }
+
+                        if(valid) {
+                            String finalKey = FirebaseNodeEntryGenerator.generateKey(lastKey);
+                            Attendance attendance = new Attendance(studentID, classId);
+                            attendanceRef.child(finalKey).setValue(attendance);
+                            dismiss();
+                            moveTo(TextEditor.class);
+                        } else {
+                            dismiss();
+                            Toast.makeText(getActivity(), "You already attended", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
 
 
 
@@ -99,7 +145,7 @@ public class VerificationCodePopup extends DialogFragment implements View.OnClic
 
     private void moveTo(Class toClass) {
         Intent intent = new Intent(getActivity(), toClass);
-        intent.putExtra(BOOKINGKEY, bookingId);
+        intent.putExtra(STUDENTID, studentID);
         intent.putExtra(CLASSKEY, classId);
         startActivity(intent);
         getActivity().overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

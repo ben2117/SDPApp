@@ -26,10 +26,10 @@ public class TextEditor extends AppCompatActivity implements View.OnClickListene
     @Bind(R.id.text_editor_edtxtview) EditText textEditorEditText;
     @Bind(R.id.text_editor_save_btn) Button saveBtn;
 
-    private static final String BOOKINGKEY = "bookingKey";
+
     private static final String CLASSKEY = "classKey";
 
-    private String bookingId;
+
     private String classId;
 
     private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/helpsNote";
@@ -43,11 +43,9 @@ public class TextEditor extends AppCompatActivity implements View.OnClickListene
         backBtn.setOnClickListener(this);
         saveBtn.setOnClickListener(this);
 
-        bookingId = getIntent().getStringExtra(BOOKINGKEY);
         classId = getIntent().getStringExtra(CLASSKEY);
 
-        String combinationOfBookingIdAndClassId = bookingId + classId;
-        pathToTextFile = path + "/" + combinationOfBookingIdAndClassId + ".txt";
+        pathToTextFile = path + "/" + classId + ".txt";
 
         //each past booking is unique
         //with the combination of class id and booking id

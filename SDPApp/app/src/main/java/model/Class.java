@@ -12,6 +12,10 @@ public class Class {
     private String room;
     private String date;
     private String time;
+    private boolean attendance = false;
+    private String classID;
+    private String sessionName;
+    private String tutor;
 
     public String getSessionID() {
         return sessionID;
@@ -62,12 +66,45 @@ public class Class {
     public boolean bookingIsPast(){
         Date todaysDate = new Date();
         Date date = this.getDateObject();
-        return date.after(todaysDate);
+        return date.before(todaysDate);
     }
 
     public boolean bookingIsFuture(){
         Date todaysDate = new Date();
         Date date = this.getDateObject();
-        return date.before(todaysDate);
+        return date.after(todaysDate);
     }
+
+    public boolean isAttendance() {
+        return attendance;
+    }
+
+    public void setAttendance(boolean attendance) {
+        this.attendance = attendance;
+    }
+
+    public String getClassID() {
+        return classID;
+    }
+
+    public void setClassID(String classID) {
+        this.classID = classID;
+    }
+
+    public String getSessionName() {
+        return sessionName;
+    }
+
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
+    }
+
+    public String getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(String tutor) {
+        this.tutor = tutor;
+    }
+
 }

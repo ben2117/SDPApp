@@ -33,6 +33,7 @@ public class SearchFilterListViewAdapter extends ArrayAdapter<Session> {
         titleTxtview.setText(getItem(position).getTitle());
         dateTxtview.setText(getItem(position).getDate());
         tutorTxtview.setText(getItem(position).getTutor());
+        locationTxtview.setText(getItem(position).getLocation());
 
         return customView;
     }

@@ -9,7 +9,7 @@ public class WaitingSession {
     private String sessionID;
     private String studentID;
     private long queuePosition;
-    private String sessionTitle;
+    private String sessionName;
 
     public String getSessionID() {
         return sessionID;
@@ -43,11 +43,11 @@ public class WaitingSession {
         this.waitingSessionID = waitingSessionID;
     }
 
-    public String getSessionTitle() {
-        return sessionTitle;
+    public String getSessionName() {
+        return sessionName;
     }
 
-    public void setSessionTitle(String sessionTitle) {
-        this.sessionTitle = sessionTitle;
+    public void setSessionName(String sessionName) {
+        this.sessionName = sessionName;
     }
 }

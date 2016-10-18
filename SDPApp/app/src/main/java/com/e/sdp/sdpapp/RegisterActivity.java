@@ -78,26 +78,24 @@ public class RegisterActivity extends AppCompatActivity{
     private String preActivityTag;
     private String studentId;
 
-
     private int counterForEduback = 1;
-
-
-    //need code to manage english score check boxes
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        //get previous tag and student database key
-        setup();
+        try {
+            //get previous tag and student database key
+            setup();
+            //set back and submit button listener
+            setButtonListeners();
+            //populate information about student
+            populate();
+        } catch (Exception e) {
+            Log.e("Error", e.getMessage());
+        }
 
-        //set back and submit button listener
-        setButtonListeners();
-
-        //populate information about student
-        populate();
     }
 
     private void setup() {
@@ -110,7 +108,12 @@ public class RegisterActivity extends AppCompatActivity{
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                submit();
+                try {
+                    submit();
+                } catch (Exception e) {
+                    Log.e("error", e.getMessage());
+                }
+
             }
         });
         backBtn.setOnClickListener(new View.OnClickListener() {

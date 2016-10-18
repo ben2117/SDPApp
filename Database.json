@@ -61,13 +61,23 @@
 
 	"booking" : {
 		"B01" : {
-			"sessionID" : "SE001",
-			"studentID" : "12345678",
+			"sessionID" : "none",
+			"studentID" : "none",
 			"alarmType" : "none"
 		},
 		"B02" :{
 			"sessionID" : "SE002",
 			"studentID" : "12345678",
+			"alarmType" : "none"
+		},
+		"B03" :{
+			"sessionID" : "SE006",
+			"studentID" : "8975",
+			"alarmType" : "none"
+		},
+		"B04" :{
+			"sessionID" : "SE006",
+			"studentID" : "09876543",
 			"alarmType" : "none"
 		}
 
@@ -85,7 +95,7 @@
 	"waiting" : {
 		"W00001" : {
 			"sessionName" : "Writing a Report",
-			"sessionID" : "SE001",
+			"sessionID" : "SE001",	
 			"studentID" : "12345678",
 			"queuePosition" : 1
 		},
@@ -95,6 +105,8 @@
 			"studentID" : "09876543",
 			"queuePosition" : 2
 		}
+		
+
 	},
 
 	"workshop" : {
@@ -119,7 +131,7 @@
 			"restrictedCourseID" : null,
 			"title": "Writing a Report",
 			"targetGroup": "all students",
-			"description": "Report types, Reports vs essays ,Report structure and components",
+			"description": "Report types, Reports vs essays",
 			"tutor" : "bob",
 			"maxAttendance" : 20,
 			"currentAttendance" : 0,
@@ -132,7 +144,7 @@
 			"restrictedCourseID" : null,
 			"title": "Critical Thinking & Writing repeat",
 			"targetGroup": "all students",
-			"description": "Report types, Reports vs essays ,Report structure and components",
+			"description": "Report structure and components",
 			"tutor" : "mike",
 			"maxAttendance" : 20,
 			"currentAttendance" : 0,
@@ -143,7 +155,7 @@
 			"workshopID": "w002",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
-			"title": "Manical Thinking & Writing repeat",
+			"title": "Mechanical Thinking ",
 			"targetGroup": "all students",
 			"description": "thinking about other things",
 			"tutor" : "mike",
@@ -156,7 +168,7 @@
 			"workshopID": "w003",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
-			"title": "Manical Thinking & Writing repeat",
+			"title": "Writing repeat",
 			"targetGroup": "all students",
 			"description": "thinking about other things",
 			"tutor" : "mike",
@@ -182,12 +194,12 @@
 			"workshopID": "w003",
 			"restrictedFacultyID" : null,
 			"restrictedCourseID" : null,
-			"title": "Counting SKills",
+			"title": "Counting Skills",
 			"targetGroup": "all students",
 			"description": "counting about other things",
 			"tutor" : "mike",
-			"maxAttendance" : 20,
-			"currentAttendance" : 0,
+			"maxAttendance" : 2,
+			"currentAttendance" : 2,
 			"date" : "1/1/10 - 1/2/10",
 			"location" : "CB01.05.10B"
 		}
@@ -205,6 +217,54 @@
 			"sessionID" : "SE001",
 			"room": "CB01.08.10B",
 			"date": "03/09/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0003" : {
+			"sessionID" : "SE001",
+			"room": "CB01.05.10B",
+			"date": "04/11/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0004" : {
+			"sessionID" : "SE001",
+			"room": "CB01.08.10B",
+			"date": "05/11/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0005" : {
+			"sessionID" : "SE002",
+			"room": "CB01.05.10B",
+			"date": "02/09/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0006" : {
+			"sessionID" : "SE002",
+			"room": "CB01.08.10B",
+			"date": "03/09/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0007" : {
+			"sessionID" : "SE002",
+			"room": "CB01.05.10B",
+			"date": "04/11/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0008" : {
+			"sessionID" : "SE002",
+			"room": "CB01.08.10B",
+			"date": "05/11/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0009" : {
+			"sessionID" : "SE006",
+			"room": "CB01.05.10B",
+			"date": "04/11/2016",
+			"time": "12:00 - 13:30"
+		},
+		"C0010" : {
+			"sessionID" : "SE006",
+			"room": "CB01.08.10B",
+			"date": "05/11/2016",
 			"time": "12:00 - 13:30"
 		}
 	},

@@ -36,9 +36,7 @@ public class WaitlistListviewAdapter extends ArrayAdapter<WaitingSession> {
         view.setTag(waitingSession.getSessionID());
         TextView titleTextview = (TextView) view.findViewById(R.id.wait_list_session_title_txtview);
         TextView numberOfStuTextview = (TextView) view.findViewById(R.id.wait_list_number_of_student);
-
-        //for test, comment in after database update
-        //titleTextview.setText(waitingSession.getSessionTitle());
+        titleTextview.setText(waitingSession.getSessionName());
 
         numberOfStuTextview.setText(String.valueOf(waitingSession.getQueuePosition()));
 

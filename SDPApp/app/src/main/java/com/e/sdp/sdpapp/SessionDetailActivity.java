@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,18 +39,26 @@ public class SessionDetailActivity extends AppCompatActivity {
     }
 
     //this button is going to be either "book now", "cancel", "Add to wait-list", or "drop session"
-    @Bind(R.id.session_detail_btn) Button sessionDetailBtn;
-    @Bind(R.id.session_detail_back_btn) Button backBtn;
+    @Bind(R.id.session_detail_btn)
+    Button sessionDetailBtn;
+    @Bind(R.id.session_detail_back_btn)
+    Button backBtn;
 
     //text views for details of a session
-    @Bind(R.id.session_detail_session_title_txview) TextView sessionTitleTxtview;
-    @Bind(R.id.session_detail_session_date_txtview) TextView sessionDateTxtview;
-    @Bind(R.id.session_detail_session_place_txtview) TextView sessionPlaceTxtview;
-    @Bind(R.id.session_detail_session_cover_txtview) TextView sessionCoverTxtview;
-    @Bind(R.id.session_detail_session_targetgroup_txtview) TextView sessionTargetTxtview;
+    @Bind(R.id.session_detail_session_title_txview)
+    TextView sessionTitleTxtview;
+    @Bind(R.id.session_detail_session_date_txtview)
+    TextView sessionDateTxtview;
+    @Bind(R.id.session_detail_session_place_txtview)
+    TextView sessionPlaceTxtview;
+    @Bind(R.id.session_detail_session_cover_txtview)
+    TextView sessionCoverTxtview;
+    @Bind(R.id.session_detail_session_targetgroup_txtview)
+    TextView sessionTargetTxtview;
 
     //add time table row to this layout
-    @Bind(R.id.session_detail_timetable_layout) LinearLayout sessionTimetableLayout;
+    @Bind(R.id.session_detail_timetable_layout)
+    LinearLayout sessionTimetableLayout;
 
     //intent keys for caller and session database key
     private static final String CALLER = "caller";
@@ -65,6 +73,7 @@ public class SessionDetailActivity extends AppCompatActivity {
     private String sessionKey;
     private String studentId;
     private String bookingKey;
+    private String sessionName = "";
 
     //inflater to inflate timetable row layout
     private LayoutInflater layoutInflater;
@@ -105,7 +114,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         //for network connection
         preTag = Tag.BLANKTAG.toString();
 
-        if(fromIntent.hasExtra(BOOKINGKEY)) {
+        if (fromIntent.hasExtra(BOOKINGKEY)) {
             bookingKey = fromIntent.getStringExtra(BOOKINGKEY);
         }
     }
@@ -131,6 +140,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Session session = dataSnapshot.getValue(Session.class);
                         setUpPreTag(session);
+                        sessionName = session.getTitle();
                         sessionTitleTxtview.setText(session.getTitle());
                         sessionDateTxtview.setText(session.getDate());
                         long availPlace = session.getMaxAttendance() - session.getCurrentAttendance();
@@ -142,7 +152,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                                 new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        for(DataSnapshot child : dataSnapshot.getChildren()){
+                                        for (DataSnapshot child : dataSnapshot.getChildren()) {
                                             Class aClass = child.getValue(Class.class);
                                             addTimetableRow(aClass, child.getKey());
                                         }
@@ -168,17 +178,50 @@ public class SessionDetailActivity extends AppCompatActivity {
         //get previous activity tag
         //when session is full, then use special tag of FULLSEARCHFRAGMENT
         preTag = getIntent().getStringExtra(CALLER);
-        if(preTag.equals(Tag.SEARCHFRAGMENT.toString()) && isFull(session)) {
+        checkBooking(session);
+
+    }
+
+    private void checkBooking(final Session session) {
+        DatabaseReference bookingRef = database.getReference("booking");
+        Query query = bookingRef.orderByChild("studentID").equalTo(studentId);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean isBooked = false;
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    BookingLine bookingLine = ds.getValue(BookingLine.class);
+                    if (bookingLine.getSessionID().equals(sessionKey)) {
+                        preTag = Tag.MYBOOKINGFRAGMENT.toString();
+                        isBooked = true;
+                        setButtonText();
+                        return;
+                    }
+                }
+                if (!isBooked) {
+                    checkWaitAndFull(session);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void checkWaitAndFull(Session session) {
+        if (preTag.equals(Tag.SEARCHFRAGMENT.toString()) && isFull(session)) {
             DatabaseReference waitRef = database.getReference("waiting");
             Query query = waitRef.orderByChild("studentID").equalTo(studentId);
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     preTag = FULLSEARCHFRAGMENT;
-                    if(dataSnapshot.exists()) {
-                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             WaitingSession waitingSession = ds.getValue(WaitingSession.class);
-                            if(waitingSession.getSessionID().equals(sessionKey)) {
+                            if (waitingSession.getSessionID().equals(sessionKey)) {
                                 preTag = Tag.WAITLISTFRAGMENT.toString();
                             }
                         }
@@ -200,57 +243,43 @@ public class SessionDetailActivity extends AppCompatActivity {
     private void setButtonText() {
         String btnText = btnTextMap.get(preTag);
         sessionDetailBtn.setText(btnText);
-        if(preTag.equals(Tag.WAITLISTFRAGMENT.toString())) {
+        if (preTag.equals(Tag.WAITLISTFRAGMENT.toString())) {
             sessionDetailBtn.setClickable(false);
         }
     }
 
 
     private void addTimetableRow(Class aClass, String classKey) {
-        View sessionTimetableRow = getSessionTimetableLayout(aClass);
-        sessionTimetableRow.setTag(classKey);
+        View sessionTimetableRow = getSessionTimetableLayout(aClass, classKey);
+
         populateTimetableInfo(aClass, sessionTimetableRow);
         sessionTimetableRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //here need logic to check if it is during session time or not
-                if(preTag.equals(Tag.MYBOOKINGFRAGMENT.toString())) {
-                    showVerficationPopup(v.getTag().toString(), bookingKey);
+                if (preTag.equals(Tag.MYBOOKINGFRAGMENT.toString())) {
+                    TimetableTag timetableTag = (TimetableTag) v.getTag();
+                    if (timetableTag.isPasssed()) {
+                        Toast.makeText(SessionDetailActivity.this, "already passed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        showVerficationPopup(timetableTag.getClassID());
+                    }
+
                 }
             }
         });
         sessionTimetableLayout.addView(sessionTimetableRow);
     }
 
-    private void showVerficationPopup(String classId, String bookingId) {
-        //test remove after add verification field to
-        //class database table
-        String tempVerificationCode = "giveup";
-
-        VerificationCodePopup verificationCodePopup = new VerificationCodePopup();
-        Bundle bundle = new Bundle();
-        bundle.putString(CLASSKEY, classId);
-        bundle.putString(BOOKINGKEY, bookingId);
-        verificationCodePopup.setArguments(bundle);
-        verificationCodePopup.show(getSupportFragmentManager(), tempVerificationCode);
-
-    }
-
-    private View getSessionTimetableLayout(Class aClass) {
-        View sessionTimetableRow = layoutInflater.inflate(R.layout.session_timetable_row, sessionTimetableLayout, false);
+    private View getSessionTimetableLayout(Class aClass, String classKey) {
+        View sessionTimetableRow = layoutInflater.inflate(R.layout.session_timetable_row, null);
         ImageView pencilImgView = (ImageView) sessionTimetableRow.findViewById(R.id.session_timetable_row_pencil_imgview);
 
-        //if users come from my booking fragment and if the session has not yet passed
-        //then it will be clickable
-        //if users come from other fragments, then remove the pencil image view
-        if(preTag.equals(Tag.MYBOOKINGFRAGMENT.toString())) {
-            if(!isPassed(aClass.getDate())) {
-                sessionTimetableRow.setClickable(true);
+        TimetableTag timetableTag = new TimetableTag(classKey, aClass.bookingIsPast());
+        sessionTimetableRow.setTag(timetableTag);
 
-                //based on session and current time
-                //set pencil imageview's image to active or inactive one needed
+        if (preTag.equals(Tag.MYBOOKINGFRAGMENT.toString())) {
 
-            }
         } else {
             pencilImgView.setVisibility(View.INVISIBLE);
         }
@@ -258,18 +287,10 @@ public class SessionDetailActivity extends AppCompatActivity {
         return sessionTimetableRow;
     }
 
-    //check if the class has already passed
-    private Boolean isPassed(String classDate) {
-        Boolean passed = true;
-
-
-        return false;
-    }
-
     private void populateTimetableInfo(Class aClass, View sessionTimetableRow) {
         TextView txtView = null;
 
-        Boolean passed = isPassed(aClass.getDate());
+        Boolean passed = aClass.bookingIsPast();
 
         txtView = (TextView) sessionTimetableRow.findViewById(R.id.session_timetable_row_date_txtview);
         setTimetableTextView(txtView, aClass.getDate(), passed);
@@ -281,46 +302,27 @@ public class SessionDetailActivity extends AppCompatActivity {
         setTimetableTextView(txtView, aClass.getRoom(), passed);
     }
 
+    private void showVerficationPopup(String classId) {
+        //test remove after add verification field to
+        //class database table
+        String tempVerificationCode = "giveup";
+
+        VerificationCodePopup verificationCodePopup = new VerificationCodePopup();
+        Bundle bundle = new Bundle();
+        bundle.putString(CLASSKEY, classId);
+        bundle.putString(STUDENTID, studentId);
+        verificationCodePopup.setArguments(bundle);
+        verificationCodePopup.show(getSupportFragmentManager(), tempVerificationCode);
+
+    }
+
     private void setTimetableTextView(TextView textview, String text, Boolean passed) {
-        if(passed) {
+        if (passed) {
             textview.setTextColor(ContextCompat.getColor(SessionDetailActivity.this, R.color.inactiveText));
         }
         textview.setText(text);
     }
 
-
-    //
-    //decrements all of the waiting lists positions so they can be checked
-    //in the waiting list fragment to book a session
-    //
-    private void decrementForWaitingList(String sessionId){
-        final DatabaseReference waitingRef = database.getReference("waiting");
-        Log.e("i was here", "i was here");
-        Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo(sessionId);
-        //Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo("SE001");
-        waitingQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-               // Log.e("data snapshot key", dataSnapshot.getKey());
-                for(DataSnapshot child : dataSnapshot.getChildren()){
-                    // Log.e("childs key", child.getKey());
-                    WaitingSession waitingSession = child.getValue(WaitingSession.class);
-                    long newPosition = waitingSession.getQueuePosition() - 1;
-                    waitingRef.child(child.getKey()).child("queuePosition").setValue(newPosition);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-
-
-
-    }
 
     //set method calls based on tag
     private void setMethodMap() {
@@ -367,17 +369,17 @@ public class SessionDetailActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
                         boolean valid = true;
-                        if(dataSnapshot.hasChildren()) {
-                            for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (dataSnapshot.hasChildren()) {
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                 BookingLine bookingLine = ds.getValue(BookingLine.class);
-                                if(bookingLine.getSessionID().equals(sessionKey)) {
+                                if (bookingLine.getSessionID().equals(sessionKey)) {
                                     valid = false;
                                     Toast.makeText(SessionDetailActivity.this, "You are already in this session", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
 
-                        if(valid) {
+                        if (valid) {
                             saveBookingToDatabase();
                         }
                     }
@@ -395,11 +397,11 @@ public class SessionDetailActivity extends AppCompatActivity {
         methodMap.put(FULLSEARCHFRAGMENT, new Command() {
             @Override
             public void runCommand() {
-                Toast.makeText(SessionDetailActivity.this, "add to waiting", Toast.LENGTH_SHORT).show();
+
                 final WaitingSession session = new WaitingSession();
                 session.setStudentID(studentId);
                 session.setSessionID(sessionKey);
-
+                session.setSessionName(sessionName);
 
                 final DatabaseReference waitingRef = database.getReference("waiting");
 
@@ -407,10 +409,11 @@ public class SessionDetailActivity extends AppCompatActivity {
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
-                            long queueposition = dataSnapshot.getChildrenCount() + 1;
-                            session.setQueuePosition(queueposition);
-                        }
+                        long queueposition = dataSnapshot.getChildrenCount() + 1;
+
+                        session.setQueuePosition(queueposition);
+                        addWaitingList(session);
+
                     }
 
                     @Override
@@ -419,27 +422,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                     }
                 });
 
-                waitingRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String lastKey = "";
-                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                            if(ds.exists()) {
-                                lastKey = ds.getKey();
-                            }
-                        }
-                        String finalKey = FirebaseNodeEntryGenerator.generateKey(lastKey);
-                        Log.e("key", finalKey);
-                        Log.e("size", String.valueOf(session.getQueuePosition()));
-                        Log.e("student Id ", session.getStudentID());
-                        waitingRef.child(finalKey).setValue(session);
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
             }
         });
 
@@ -451,6 +434,32 @@ public class SessionDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void addWaitingList(final WaitingSession session){
+        final DatabaseReference waitingRef = database.getReference("waiting");
+        waitingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String lastKey = "";
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (ds.exists()) {
+                        lastKey = ds.getKey();
+                    }
+                }
+                String finalKey = FirebaseNodeEntryGenerator.generateKey(lastKey);
+
+                waitingRef.child(finalKey).setValue(session);
+                Log.e("data snap shot childre", ""+ session.getQueuePosition());
+                Toast.makeText(SessionDetailActivity.this, "added to waiting", Toast.LENGTH_SHORT).show();
+                finishWithAni();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void saveBookingToDatabase() {
         final DatabaseReference bookingRef = database.getReference("booking");
         final DatabaseReference sessionRef = database.getReference("session");
@@ -458,9 +467,9 @@ public class SessionDetailActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String lastKey = "";
-                if(dataSnapshot.hasChildren()) {
-                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                        if(ds.exists()) {
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.exists()) {
                             lastKey = ds.getKey();
                         }
                     }
@@ -476,7 +485,7 @@ public class SessionDetailActivity extends AppCompatActivity {
                 sessionRef.child(sessionKey).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()) {
+                        if (dataSnapshot.exists()) {
                             Session session = dataSnapshot.getValue(Session.class);
                             long availablePlace = session.getCurrentAttendance() + 1;
                             sessionRef.child(dataSnapshot.getKey()).child("currentAttendance").setValue(availablePlace);
@@ -513,7 +522,7 @@ public class SessionDetailActivity extends AppCompatActivity {
         sessionDetailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(preTag.equals(Tag.WAITLISTFRAGMENT.toString())) {
+                if (preTag.equals(Tag.WAITLISTFRAGMENT.toString())) {
 
                 } else {
                     methodMap.get(preTag).runCommand();
@@ -526,7 +535,7 @@ public class SessionDetailActivity extends AppCompatActivity {
     //determine if the session is full
     private boolean isFull(Session session) {
         Boolean isFull = false;
-        if((session.getMaxAttendance() - session.getCurrentAttendance()) <= 0) {
+        if ((session.getMaxAttendance() - session.getCurrentAttendance()) <= 0) {
             isFull = true;
         }
         return isFull;
@@ -536,4 +545,29 @@ public class SessionDetailActivity extends AppCompatActivity {
         finish();
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
+
+    private void decrementForWaitingList(String sessionId) {
+        final DatabaseReference waitingRef = database.getReference("waiting");
+        Log.e("i was here", "i was here");
+        Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo(sessionId);
+        //Query waitingQuery = waitingRef.orderByChild("sessionID").equalTo("SE001");
+        waitingQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Log.e("data snapshot key", dataSnapshot.getKey());
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    // Log.e("childs key", child.getKey());
+                    WaitingSession waitingSession = child.getValue(WaitingSession.class);
+                    long newPosition = waitingSession.getQueuePosition() - 1;
+                    waitingRef.child(child.getKey()).child("queuePosition").setValue(newPosition);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 }

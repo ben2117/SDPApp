@@ -18,6 +18,7 @@ public class Session {
     private int currentAttendance;
     private String date;
     private String tutor;
+    private String location;
 
 
     public Session() {
@@ -114,5 +115,13 @@ public class Session {
 
     public void setTutor(String tutor) {
         this.tutor = tutor;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

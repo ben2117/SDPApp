@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
 import model.Faq;
 
 public class MainPageActivity extends AppCompatActivity {
@@ -49,9 +50,15 @@ public class MainPageActivity extends AppCompatActivity {
         setNavigationViewListener();
         setTabFragment();
 
+
         //get student database key here from intent??
         studentId = getIntent().getStringExtra("studentid");
-        Log.e("from main page activity", studentId);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        logined = true;
     }
 
     private void setDrawer() {
@@ -119,7 +126,6 @@ public class MainPageActivity extends AppCompatActivity {
 
         //put student database key in intent here?? just for when users
         //go to my information page
-
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }

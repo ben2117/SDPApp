@@ -38,10 +38,6 @@ public class Reminder {
     }
 
     private void setAlarmManager() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, DAILYCHECKTIME);
-
-
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context.getApplicationContext(),
                 100,
@@ -50,18 +46,12 @@ public class Reminder {
 
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-
+        //change it to ??
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis(),
-                5 * 1000,
-                pendingIntent);
-        /*
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
+                10 * 1000,
                 pendingIntent);
 
-        */
     }
 
     public void addReminderItem(String bookingKey, final String sessionKey) {
@@ -76,11 +66,11 @@ public class Reminder {
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChildren()) {
-                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                if (dataSnapshot.hasChildren()) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         Class aClass = ds.getValue(Class.class);
                         ReminderItem currentReminderItem = getReminderItem(aClass.getSessionID());
-                        if(currentReminderItem != null) {
+                        if (currentReminderItem != null) {
                             currentReminderItem.addToClassArray(aClass);
                         }
                     }
@@ -89,10 +79,10 @@ public class Reminder {
                 sessionRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             Session session = ds.getValue(Session.class);
                             ReminderItem reminderItem1 = getReminderItem(ds.getKey());
-                            if(reminderItem1 != null) {
+                            if (reminderItem1 != null) {
                                 reminderItem1.setSessionName(session.getTitle());
                             }
                         }
@@ -114,9 +104,9 @@ public class Reminder {
     }
 
     public void removeReminderItem(String bookingKey) {
-        if(reminderItems.size() != 0) {
-            for(int i = 0; i < reminderItems.size(); i++) {
-                if(reminderItems.get(i).getBookingId().equals(bookingKey)) {
+        if (reminderItems.size() != 0) {
+            for (int i = 0; i < reminderItems.size(); i++) {
+                if (reminderItems.get(i).getBookingId().equals(bookingKey)) {
                     reminderItems.remove(i);
                 }
             }
@@ -124,8 +114,8 @@ public class Reminder {
     }
 
     private ReminderItem getReminderItem(String sessionKey) {
-        for(int i = 0; i < reminderItems.size(); i++) {
-            if(reminderItems.get(i).getSessionId().equals(sessionKey)) {
+        for (int i = 0; i < reminderItems.size(); i++) {
+            if (reminderItems.get(i).getSessionId().equals(sessionKey)) {
                 return reminderItems.get(i);
             }
         }
@@ -133,14 +123,13 @@ public class Reminder {
     }
 
     public void updateReminderItem(String bookingId, Boolean sevenFlag, Boolean oneFlag, Boolean tenFlag) {
-        for(int i = 0; i < reminderItems.size(); i++) {
-            if(reminderItems.get(i).getBookingId().equals(bookingId)) {
+        for (int i = 0; i < reminderItems.size(); i++) {
+            if (reminderItems.get(i).getBookingId().equals(bookingId)) {
                 reminderItems.get(i).setSevenDayActive(sevenFlag);
                 reminderItems.get(i).setOneDayActive(oneFlag);
                 reminderItems.get(i).setTenMinuteActive(tenFlag);
             }
         }
-        context.startActivity(getIntent());
     }
 
     public static ArrayList<ReminderItem> getReminderArray() {
@@ -155,7 +144,7 @@ public class Reminder {
     //test remove me
     private void display() {
 
-        for(int i = 0; i < reminderItems.size(); i++) {
+        for (int i = 0; i < reminderItems.size(); i++) {
             ReminderItem reminderItem = reminderItems.get(i);
 
             Log.e("dispp", reminderItem.getBookingId());
@@ -165,7 +154,7 @@ public class Reminder {
             Log.e("flag", String.valueOf(reminderItem.getOneDayActive()));
             Log.e("flag", String.valueOf(reminderItem.getTenMinuteActive()));
 
-            for(int j = 0; j < reminderItem.getClasses().size(); j++) {
+            for (int j = 0; j < reminderItem.getClasses().size(); j++) {
                 Class aclasss = reminderItem.getClasses().get(j);
                 Log.e("sessionclass", aclasss.getDate());
                 Log.e("sessionclass", aclasss.getTime());

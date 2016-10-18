@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,9 +18,12 @@ import android.widget.Toast;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import model.Booking;
+import model.BookingLine;
+
 import model.PastBooking;
 import model.Session;
 import model.Student;
+import model.WaitingSession;
 
 //make sure sdk tools are updated including google play services
 import com.google.firebase.database.*;
@@ -50,17 +54,15 @@ public class MainActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            try {
-                login();
-            } catch (Exception e) {
-                if(NetworkChecker.checkNetwork(MainActivity.this)) {
+                if (!NetworkChecker.checkNetwork(MainActivity.this)) {
                     Toast.makeText(MainActivity.this, "check you network", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        login();
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Try again", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                Toast.makeText(MainActivity.this,"try again", Toast.LENGTH_SHORT).show();
-                if(progressDialog != null) {
-                    progressDialog.dismiss();
-                }
-            }
             }
         });
     }
@@ -137,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
         progressDialog = new ProgressDialog(MainActivity.this, R.style.AppTheme_ProcessDialog);
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Small);
-        progressDialog.setCancelable(false);
         progressDialog.show();
     }
 
@@ -146,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
 
         String studentID = studentIdEdText.getText().toString();
         String password = passwordEdText.getText().toString();
-
 
         if(studentID.length() > 10 || studentID.length() < 8) {
             studentIdEdText.setError("Enter a valid student ID");
@@ -162,11 +162,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             passwordEdText.setError(null);
         }
-
-        //-----start test code, remove me ---------------
-        valid = true;
-
-
         return valid;
     }
 
@@ -177,7 +172,6 @@ public class MainActivity extends AppCompatActivity {
 
         //put student database key in intent here?
         intent.putExtra(STUDENTID, studentID);
-
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }

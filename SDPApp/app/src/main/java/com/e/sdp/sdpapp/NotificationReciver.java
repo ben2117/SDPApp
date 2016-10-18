@@ -16,11 +16,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 
+import model.Class;
 import model.ReminderItem;
 
 /**
@@ -30,17 +35,102 @@ public class NotificationReciver extends BroadcastReceiver {
 
     private ArrayList<ReminderItem> reminderItems;
     private Context context;
+    private static int counter = 0;
+    private static int reminderId = 0;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         reminderItems = Reminder.getReminderArray();
-        final boolean loginValid = MainPageActivity.isLogined();
         this.context = context;
-        if(loginValid) {
-            publishNotification();
-        } else {
-            Log.e("dd", "logout");
+
+        ArrayList<ReminderItem> sevenDayReminders = new ArrayList<>();
+        ArrayList<ReminderItem> oneDayReminders = new ArrayList<>();
+        for(int i = 0; i < reminderItems.size(); i++) {
+            ReminderItem currentReminder = reminderItems.get(i);
+            if(currentReminder.getSevenDayActive()) {
+               if(checkReminder(currentReminder.getClasses(), 14)) {
+                   sevenDayReminders.add(currentReminder);
+               }
+            }
+
+            if(currentReminder.getOneDayActive()) {
+                if(checkReminder(currentReminder.getClasses(), 17)) {
+                    oneDayReminders.add(currentReminder);
+                }
+            }
         }
+
+        publishNotification(sevenDayReminders, "7");
+        publishNotification(oneDayReminders, "1");
+    }
+
+    private boolean checkReminder(ArrayList<Class> classes, int dayBefore) {
+
+        try {
+            Calendar calendar = GregorianCalendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.DAY_OF_YEAR, dayBefore);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String date = simpleDateFormat.format(calendar.getTime());
+            Date dateBefore = simpleDateFormat.parse(date);
+
+            for(int i = 0; i < classes.size(); i++) {
+                Class currentClass = classes.get(i);
+                if(currentClass.getDateObject().equals(dateBefore)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void publishNotification(ArrayList<ReminderItem> reminders, String dayAfter) {
+        if(counter == 2) {
+            counter = 0;
+            reminderId = 0;
+        }
+
+        for(int i = 0; i < reminders.size(); i++) {
+            NotificationCompat.Builder mBuilder = getBuilder(reminders.get(i).getSessionName(), dayAfter);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(reminderId++, mBuilder.build());
+        }
+
+        counter++;
+    }
+
+    private NotificationCompat.Builder getBuilder(String sessionName, String dayAfter) {
+        Intent intent = new Intent();
+        /*
+        if(MainPageActivity.isLogined()) {
+            //intent = new Intent(context, MainPageActivity.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        } else {
+            //intent = new Intent(context, MainActivity.class);
+        }
+
+        */
+
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+                intent, 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.helps_notifi_icon)
+                        .setContentTitle("HELPS Notification")
+                        .setContentText(sessionName
+                                + " has booking after " + dayAfter + " day");
+        mBuilder.setContentIntent(pendingIntent);
+        mBuilder.setAutoCancel(true);
+        return mBuilder;
+    }
+}
+
+
 
 /*
         //login check logic here
@@ -86,24 +176,3 @@ public class NotificationReciver extends BroadcastReceiver {
         Timer timer = new Timer();
         timer.schedule(new CustomTimerTask(windowManager, view), 3000);
         */
-    }
-
-    private void publishNotification() {
-        Intent nextIntent = new Intent(context, MyBookingFragment.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                nextIntent, 0);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.helps_notifi_icon)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!");
-        mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setAutoCancel(true);
-        NotificationManager mNotificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, mBuilder.build());
-
-    }
-
-}

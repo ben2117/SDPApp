@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/selector_timetable_row"
+    android:clickable="true"
     android:orientation="vertical">
 
     <LinearLayout
@@ -14,13 +16,12 @@
         android:paddingTop="10dp">
 
         <TextView
-            android:id="@+id/past_booking_row_title"
+            android:id="@+id/next_booked_class_session_title_txtview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="U:PASS: write for First Year Nursing students ONLY"
             android:textColor="@color/colorBlack"
-            android:textSize="15sp" >
-        </TextView>
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,7 +49,7 @@
                         android:src="@drawable/calendar_in_booking_row" />
 
                     <TextView
-                        android:id="@+id/past_booking_row_date"
+                        android:id="@+id/next_booked_class_class_date_txtview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingLeft="4dp"
@@ -67,7 +68,7 @@
                         android:src="@drawable/clock_in_booking_row" />
 
                     <TextView
-                        android:id="@+id/past_booking_row_time"
+                        android:id="@+id/next_booked_class_class_time_txtview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingLeft="4dp"
@@ -86,29 +87,11 @@
                         android:src="@drawable/location_in_booking_row" />
 
                     <TextView
-                        android:id="@+id/past_booking_row_location"
+                        android:id="@+id/next_booked_class_class_location_txtview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingLeft="4dp"
                         android:text="CB01.05.10B" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="18dip"
-                        android:layout_height="18dip"
-                        android:src="@drawable/tutor" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:paddingLeft="5dp"
-                        android:id="@+id/past_booking_row_tutor"
-                        android:text="Jim" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -116,27 +99,13 @@
             <LinearLayout
                 android:layout_width="0dip"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:layout_weight="0.2">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorRed"
-                    android:text="Workshop"/>
-
-                <LinearLayout
+                <ImageView
+                    android:id="@+id/booking_row_alarm_imageview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center">
-
-                    <ImageView
-                        android:id="@+id/past_booking_row_pencil_imageview"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/pencil_inactive" />
-
-                </LinearLayout>
+                    android:src="@drawable/pencil_inactive" />
             </LinearLayout>
 
         </LinearLayout>
@@ -150,3 +119,4 @@
 
 
 </LinearLayout>
+

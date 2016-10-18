@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import model.Class;
 import model.Session;
@@ -134,8 +135,6 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
                                                     sessions.add(session);
                                                 }
                                             }
-
-
                                             workshops.add(workshop);
                                             counter++;
                                             if(workshopDsSize == counter) {
@@ -176,17 +175,14 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
 
 
         //searchil filter listview
-        //filteredSessions = new ArrayList<Session>(_sessions);
-
+        filteredSessions = new ArrayList<Session>(_sessions);
         filteredSessions = new ArrayList<>();
         searchFilterListViewAdapter = new SearchFilterListViewAdapter(getActivity(), filteredSessions);
         searchFilterListView.setAdapter(searchFilterListViewAdapter);
         searchFilterListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                //here moveTo session detail activity
-
+                moveTo(SessionDetailActivity.class, view.getTag().toString());
             }
         });
     }
@@ -313,6 +309,11 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
 
         //filter on location
         else if(SPINNERSTATE == LOCATIONPOSITION) {
+            for(Session session : sessions) {
+                if(session.getLocation().replace(" ", "").toLowerCase().contains(searchKeyword)) {
+                    filteredSessions.add(session);
+                }
+            }
         }
 
         searchFilterListViewAdapter.notifyDataSetChanged();
@@ -327,10 +328,8 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
 
     private void setDatePickerDialog() {
         datePickerDialog = new DatePickerDialog(getActivity(), null, mYear, mMonth, mDay);
-
         //set minimum date as today
         datePickerDialog.getDatePicker().setMinDate(new Date().getTime());
-
         datePickerDialog.setCancelable(true);
         datePickerDialog.setCanceledOnTouchOutside(true);
     }
@@ -376,6 +375,7 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
         int month = dp.getMonth();
         int day = dp.getDayOfMonth();
 
+
         //date format and display in edit text
         setDateOnEditTextWith(year, month, day);
 
@@ -384,19 +384,71 @@ public class SearchFragment extends Fragment implements View.OnFocusChangeListen
 
     }
 
-    private void filterOnDates(int year, int month, int day) {
-        //filter logic here?
-
-        //test, remove me
+    private void filterOnDates(final int year, final int month, final int day) {
         Toast.makeText(getActivity(), "filter on dates", Toast.LENGTH_SHORT).show();
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+
+        if(filteredSessions.size() != 0) {
+            filteredSessions.clear();
+        }
+
+
+        DatabaseReference classRef = firebaseDatabase.getReference("class");
+        classRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                try {
+                    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+                    Date selectedDate = format.parse(getFormattedDate(year, month, day));
+                    String preSessionKey = "";
+                    for(DataSnapshot ds : dataSnapshot.getChildren()) {
+                        Class currentClass = ds.getValue(Class.class);
+                        if(currentClass.getDateObject().equals(selectedDate)) {
+                            if(!preSessionKey.equals(currentClass.getSessionID())) {
+                                preSessionKey = currentClass.getSessionID();
+                                Session session = getSessionFromArrayWithId(currentClass.getSessionID());
+                                if(session != null) {
+                                    filteredSessions.add(session);
+                                }
+
+                            }
+                        }
+                    }
+
+                    searchFilterListViewAdapter.notifyDataSetChanged();
+                } catch (Exception e) {
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private Session getSessionFromArrayWithId(String sessionId) {
+        for(Session session : sessions) {
+            if(session.getSessionId().equals(sessionId)) {
+                return session;
+            }
+        }
+        return null;
     }
 
     private void setDateOnEditTextWith(int year, int month, int day) {
+        String date = getFormattedDate(year, month, day);
+        searchBarEdTxtview.setText(date);
+    }
+
+    private String getFormattedDate(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day);
-        SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        String date = format.format(calendar.getTime());
-        searchBarEdTxtview.setText(date);
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        String formattedDate = format.format(calendar.getTime());
+        return formattedDate;
     }
 
     //for time and date to show dialog when edit text is focused
